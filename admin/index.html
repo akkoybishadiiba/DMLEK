@@ -414,482 +414,673 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script>
-        const firebaseConfig={apiKey:"AIzaSyCFUzAQucspGeL9e580ha0t9ajmibtZYVU",authDomain:"dmlek-5e41d.firebaseapp.com",projectId:"dmlek-5e41d",storageBucket:"dmlek-5e41d.firebasestorage.app",messagingSenderId:"776258229369",appId:"1:776258229369:web:19b757e38f79156f91f0a8"};
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db   = firebase.firestore();
-        const TS   = firebase.firestore.FieldValue.serverTimestamp;
+    // ── Init ────────────────────────────────────────────────────────────────
+    var db, auth;
+    try {
+        firebase.initializeApp({
+            apiKey:"AIzaSyCFUzAQucspGeL9e580ha0t9ajmibtZYVU",
+            authDomain:"dmlek-5e41d.firebaseapp.com",
+            projectId:"dmlek-5e41d",
+            storageBucket:"dmlek-5e41d.firebasestorage.app",
+            messagingSenderId:"776258229369",
+            appId:"1:776258229369:web:19b757e38f79156f91f0a8"
+        });
+        auth = firebase.auth();
+        db   = firebase.firestore();
+    } catch(e) {
+        document.getElementById('authError').textContent = 'Firebase init failed: ' + e.message;
+        document.getElementById('authError').style.display = 'block';
+    }
 
-        let currentPage='dashboard', selectedItems=new Set(), autoSaveTimer=null,
-            currentImageUrl=null, currentDocImageUrl=null, currentPhotoImageUrl=null;
+    // ── State ────────────────────────────────────────────────────────────────
+    var currentPage = 'dashboard';
+    var selectedItems = new Set();
+    var autoSaveTimer = null;
+    var currentImageUrl = null;
+    var currentDocImageUrl = null;
+    var currentPhotoImageUrl = null;
+    var TS = function() { return firebase.firestore.FieldValue.serverTimestamp(); };
 
-        // ── Auth ─────────────────────────────────────────────────────────────
-        auth.onAuthStateChanged(async user => {
+    // ── Auth listener ────────────────────────────────────────────────────────
+    if (auth) {
+        auth.onAuthStateChanged(function(user) {
             if (user) {
-                try {
-                    // Check if this user is already an admin
-                    const adminSnap = await db.collection('admins').doc(user.uid).get();
-                    if (adminSnap.exists) {
-                        showApp(user);
-                        return;
-                    }
-
-                    // No record for this user — check if ANY admin exists yet
-                    const anyAdmin = await db.collection('admins').limit(1).get();
-                    if (anyAdmin.empty) {
-                        // First ever login — register this user as the first admin
-                        await db.collection('admins').doc(user.uid).set({
-                            email: user.email,
-                            role: 'admin',
-                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                        });
-                        showApp(user);
-                        return;
-                    }
-
-                    // Admins exist but this user is not one of them
-                    await auth.signOut();
-                    showAuth();
-                    showAuthError('Access denied. This account is not registered as an admin. Use setup.html to register your account, or contact an existing admin.');
-                } catch(err) {
-                    await auth.signOut();
-                    showAuth();
-                    showAuthError('Error: ' + err.message + ' — Make sure Firestore is enabled in your Firebase project.');
-                }
-            } else { showAuth(); }
+                showApp(user);
+            } else {
+                showAuth();
+            }
         });
+    }
 
-        document.getElementById('loginForm').addEventListener('submit', async e => {
+    // ── Login form ───────────────────────────────────────────────────────────
+    var lf = document.getElementById('loginForm');
+    if (lf) {
+        lf.addEventListener('submit', function(e) {
             e.preventDefault();
-            try { await auth.signInWithEmailAndPassword(document.getElementById('loginEmail').value, document.getElementById('loginPassword').value); }
-            catch(err) { showAuthError(err.message); }
+            var email    = document.getElementById('loginEmail').value.trim();
+            var password = document.getElementById('loginPassword').value;
+            var btn      = lf.querySelector('button[type="submit"]');
+            var errEl    = document.getElementById('authError');
+
+            if (!email || !password) {
+                errEl.textContent = 'Please enter your email and password.';
+                errEl.style.display = 'block';
+                return;
+            }
+
+            btn.disabled    = true;
+            btn.textContent = 'Signing in…';
+            errEl.style.display = 'none';
+
+            auth.signInWithEmailAndPassword(email, password)
+                .then(function() {
+                    // onAuthStateChanged will handle the redirect
+                })
+                .catch(function(err) {
+                    btn.disabled    = false;
+                    btn.textContent = 'Sign In';
+                    var msgs = {
+                        'auth/user-not-found':       'No account found with this email.',
+                        'auth/wrong-password':        'Incorrect password.',
+                        'auth/invalid-email':         'Please enter a valid email address.',
+                        'auth/invalid-credential':    'Email or password is incorrect.',
+                        'auth/too-many-requests':     'Too many attempts — wait a few minutes.',
+                        'auth/user-disabled':         'This account has been disabled.',
+                        'auth/network-request-failed':'Network error — check your connection.',
+                        'auth/operation-not-allowed': 'Email/password login is not enabled. Go to Firebase Console → Authentication → Sign-in methods and enable it.'
+                    };
+                    errEl.textContent = msgs[err.code] || ('Login failed: ' + err.message);
+                    errEl.style.display = 'block';
+                });
         });
+    }
 
-        document.getElementById('logoutBtn').addEventListener('click', () => auth.signOut());
+    // ── Logout ───────────────────────────────────────────────────────────────
+    var lb = document.getElementById('logoutBtn');
+    if (lb) lb.addEventListener('click', function() { auth.signOut(); });
 
-        function showAuthError(msg) { const e=document.getElementById('authError'); e.textContent=msg; e.style.display='block'; }
-        function showAuth()   { document.getElementById('authScreen').style.display='flex'; document.getElementById('app').classList.remove('active'); }
-        function showApp(u)   { document.getElementById('authScreen').style.display='none'; document.getElementById('app').classList.add('active'); document.getElementById('userName').textContent=u.displayName||u.email.split('@')[0]; document.getElementById('userEmail').textContent=u.email; document.getElementById('userAvatar').textContent=(u.displayName||u.email)[0].toUpperCase(); loadDashboard(); }
+    // ── Show / Hide screens ──────────────────────────────────────────────────
+    function showAuth() {
+        document.getElementById('authScreen').style.display = 'flex';
+        document.getElementById('app').classList.remove('active');
+    }
 
-        // ── Navigation ───────────────────────────────────────────────────────
-        document.querySelectorAll('.nav-item').forEach(item => item.addEventListener('click', () => navigateTo(item.dataset.page)));
+    function showApp(user) {
+        document.getElementById('authScreen').style.display = 'none';
+        document.getElementById('app').classList.add('active');
 
-        function navigateTo(page) {
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            const ni = document.querySelector(`.nav-item[data-page="${page}"]`);
-            if (ni) ni.classList.add('active');
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            const pe = document.getElementById('page-'+page);
-            if (pe) pe.classList.add('active');
-            document.getElementById('pageTitle').textContent = page.charAt(0).toUpperCase()+page.slice(1);
-            currentPage = page; clearSelection();
-            if (page==='dashboard')   loadDashboard();
-            else if (page==='articles')    loadArticles();
-            else if (page==='media')       loadMedia();
-            else if (page==='documents')   loadDocuments();
-            else if (page==='events')      loadEvents();
-            else if (page==='photos')      loadPhotos();
-            else if (page==='messages')    loadMessages();
-            else if (page==='subscribers') loadSubscribers();
-            document.getElementById('sidebar').classList.remove('active');
-            document.getElementById('sidebarOverlay').classList.remove('active');
-        }
+        var nameEl   = document.getElementById('userName');
+        var emailEl  = document.getElementById('userEmail');
+        var avatarEl = document.getElementById('userAvatar');
 
-        document.getElementById('addNewBtn').addEventListener('click', () => {
-            if (currentPage==='articles'||currentPage==='dashboard') openArticleModal();
-            else if (currentPage==='media')       openModal('mediaModal');
-            else if (currentPage==='documents')   openDocumentModal();
-            else if (currentPage==='events')      openModal('eventModal');
-            else if (currentPage==='photos')      openPhotoModal();
+        if (nameEl)   nameEl.textContent   = user.displayName || user.email.split('@')[0];
+        if (emailEl)  emailEl.textContent  = user.email;
+        if (avatarEl) avatarEl.textContent = (user.displayName || user.email)[0].toUpperCase();
+
+        navigateTo('dashboard');
+    }
+
+    function showAuthError(msg) {
+        var el = document.getElementById('authError');
+        if (el) { el.textContent = msg; el.style.display = 'block'; }
+    }
+
+    // ── Navigation ───────────────────────────────────────────────────────────
+    document.querySelectorAll('.nav-item').forEach(function(item) {
+        item.addEventListener('click', function() { navigateTo(item.dataset.page); });
+    });
+
+    function navigateTo(page) {
+        if (!page) return;
+        document.querySelectorAll('.nav-item').forEach(function(i) { i.classList.remove('active'); });
+        var ni = document.querySelector('.nav-item[data-page="' + page + '"]');
+        if (ni) ni.classList.add('active');
+        document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+        var pe = document.getElementById('page-' + page);
+        if (pe) pe.classList.add('active');
+        var pt = document.getElementById('pageTitle');
+        if (pt) pt.textContent = page.charAt(0).toUpperCase() + page.slice(1);
+        currentPage = page;
+        clearSelection();
+        if      (page === 'dashboard')   loadDashboard();
+        else if (page === 'articles')    loadArticles();
+        else if (page === 'media')       loadMedia();
+        else if (page === 'documents')   loadDocuments();
+        else if (page === 'events')      loadEvents();
+        else if (page === 'photos')      loadPhotos();
+        else if (page === 'messages')    loadMessages();
+        else if (page === 'subscribers') loadSubscribers();
+        var sb = document.getElementById('sidebar');
+        var so = document.getElementById('sidebarOverlay');
+        if (sb) sb.classList.remove('active');
+        if (so) so.classList.remove('active');
+    }
+
+    // ── Add New button ───────────────────────────────────────────────────────
+    var anb = document.getElementById('addNewBtn');
+    if (anb) {
+        anb.addEventListener('click', function() {
+            if (currentPage === 'articles' || currentPage === 'dashboard') openArticleModal();
+            else if (currentPage === 'media')       openModal('mediaModal');
+            else if (currentPage === 'documents')   openDocumentModal();
+            else if (currentPage === 'events')      openModal('eventModal');
+            else if (currentPage === 'photos')      openPhotoModal();
         });
+    }
 
-        // ── Dashboard ────────────────────────────────────────────────────────
-        async function loadDashboard() {
-            try {
-                const [artSnap,medSnap,docSnap,evtSnap,phSnap,msgSnap,subSnap] = await Promise.all([
-                    db.collection('articles').get(), db.collection('media').get(),
-                    db.collection('documents').get(), db.collection('events').get(),
-                    db.collection('photos').get(), db.collection('messages').get(),
-                    db.collection('subscribers').get()
-                ]);
-                const aC=artSnap.size, mC=medSnap.size, dC=docSnap.size, eC=evtSnap.size,
-                      pC=phSnap.size, msgC=msgSnap.size, sC=subSnap.size;
-                const unread = msgSnap.docs.filter(d=>!d.data().read).length;
+    // ── Mobile sidebar ───────────────────────────────────────────────────────
+    var mst = document.getElementById('mobileSidebarToggle');
+    var so  = document.getElementById('sidebarOverlay');
+    if (mst) mst.addEventListener('click', function() {
+        document.getElementById('sidebar').classList.toggle('active');
+        so.classList.toggle('active');
+    });
+    if (so) so.addEventListener('click', function() {
+        document.getElementById('sidebar').classList.remove('active');
+        so.classList.remove('active');
+    });
 
-                document.getElementById('statArticles').textContent = aC;
-                document.getElementById('statMedia').textContent    = mC;
-                document.getElementById('statDocs').textContent     = dC;
-                document.getElementById('statEvents').textContent   = eC;
-                document.getElementById('statPhotos').textContent   = pC;
-                document.getElementById('navArticles').textContent  = aC;
-                document.getElementById('navMedia').textContent     = mC;
-                document.getElementById('navDocs').textContent      = dC;
-                document.getElementById('navEvents').textContent    = eC;
-                document.getElementById('navPhotos').textContent    = pC;
-                document.getElementById('navMessages').textContent  = unread > 0 ? unread : msgC;
-                document.getElementById('navSubscribers').textContent = sC;
-
-                const lc = {english:0,tigrinya:0,arabic:0,kunama:0};
-                artSnap.docs.forEach(d => { const l=d.data().language; if(lc[l]!==undefined) lc[l]++; });
-                const mx = Math.max(...Object.values(lc),1);
-                document.getElementById('langChart').innerHTML  = Object.entries(lc).map(([l,n])=>`<div class="chart-bar" style="height:${(n/mx)*100}%"><span>${n}</span></div>`).join('');
-                document.getElementById('langLabels').innerHTML = Object.keys(lc).map(l=>`<span>${l.charAt(0).toUpperCase()+l.slice(1)}</span>`).join('');
-
-                const recent = artSnap.docs.map(d=>({id:d.id,...d.data(),createdAt:d.data().createdAt?.toDate()||new Date()}))
-                    .sort((a,b)=>b.createdAt-a.createdAt).slice(0,5);
-                document.getElementById('recentArticles').innerHTML = recent.length===0
-                    ? '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:2rem">No articles yet</td></tr>'
-                    : recent.map(d=>`<tr><td><div class="item-title">${d.title}</div></td><td><span class="badge badge-${d.language}">${d.language}</span></td><td><span class="badge badge-${d.status}">${d.status}</span></td><td>${d.createdAt.toLocaleDateString()}</td></tr>`).join('');
-            } catch(err) { console.error('Dashboard error:',err); toast('Error loading dashboard','error'); }
+    // ── Escape closes modals ─────────────────────────────────────────────────
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.modal-overlay.active').forEach(function(m) { closeModal(m.id); });
         }
+    });
 
-        // ── Articles ─────────────────────────────────────────────────────────
-        async function loadArticles() {
-            const lang=document.getElementById('filterLang').value, status=document.getElementById('filterStatus').value, search=document.getElementById('articleSearch').value.toLowerCase();
-            try {
-                const snap = await db.collection('articles').orderBy('createdAt','desc').get();
-                let docs = snap.docs.map(d=>({id:d.id,...d.data(),createdAt:d.data().createdAt?.toDate()||new Date()}));
-                if (lang)   docs = docs.filter(a=>a.language===lang);
-                if (status) docs = docs.filter(a=>a.status===status);
-                if (search) docs = docs.filter(a=>(a.title||'').toLowerCase().includes(search));
-                document.getElementById('articlesTable').innerHTML = docs.length===0
-                    ? '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:2rem">No articles found</td></tr>'
-                    : docs.map(a=>`<tr><td class="checkbox-cell"><input type="checkbox" data-id="${a.id}" onchange="updateSelection(this)"></td><td><div class="item-title">${a.title}</div><div class="item-excerpt">${a.excerpt||''}</div></td><td><span class="badge badge-${a.language}">${a.language}</span></td><td><span class="badge badge-${a.status}">${a.status}</span></td><td>${a.createdAt.toLocaleDateString()}</td><td><div class="actions"><button class="action-btn" onclick="editArticle('${a.id}')" title="Edit">✏️</button><button class="action-btn" onclick="window.open('../pages/article.html?id=${a.id}','_blank')" title="View">👁️</button><button class="action-btn delete" onclick="deleteItem('articles','${a.id}')" title="Delete">🗑️</button></div></td></tr>`).join('');
-            } catch(err) { toast('Error loading articles','error'); }
+    // ── Dashboard ────────────────────────────────────────────────────────────
+    async function loadDashboard() {
+        try {
+            var cols = ['articles','media','documents','events','photos','messages','subscribers'];
+            var snaps = await Promise.all(cols.map(function(c) { return db.collection(c).get(); }));
+            var counts = {};
+            cols.forEach(function(c, i) { counts[c] = snaps[i].size; });
+
+            var unread = snaps[5].docs.filter(function(d) { return !d.data().read; }).length;
+
+            function setText(id, val) { var el=document.getElementById(id); if(el) el.textContent=val; }
+            setText('statArticles',  counts.articles);
+            setText('statMedia',     counts.media);
+            setText('statDocs',      counts.documents);
+            setText('statEvents',    counts.events);
+            setText('statPhotos',    counts.photos);
+            setText('navArticles',   counts.articles);
+            setText('navMedia',      counts.media);
+            setText('navDocs',       counts.documents);
+            setText('navEvents',     counts.events);
+            setText('navPhotos',     counts.photos);
+            setText('navMessages',   unread > 0 ? unread : counts.messages);
+            setText('navSubscribers',counts.subscribers);
+
+            var lc = {english:0,tigrinya:0,arabic:0,kunama:0};
+            snaps[0].docs.forEach(function(d) { var l=d.data().language; if(lc[l]!==undefined) lc[l]++; });
+            var mx = Math.max.apply(null, Object.values(lc).concat([1]));
+            var chartEl = document.getElementById('langChart');
+            var lblEl   = document.getElementById('langLabels');
+            if (chartEl) chartEl.innerHTML  = Object.entries(lc).map(function(kv){ return '<div class="chart-bar" style="height:'+((kv[1]/mx)*100)+'%"><span>'+kv[1]+'</span></div>'; }).join('');
+            if (lblEl)   lblEl.innerHTML    = Object.keys(lc).map(function(l){ return '<span>'+l.charAt(0).toUpperCase()+l.slice(1)+'</span>'; }).join('');
+
+            var recent = snaps[0].docs.map(function(d){ return Object.assign({id:d.id},d.data(),{createdAt:d.data().createdAt?.toDate()||new Date()}); })
+                .sort(function(a,b){ return b.createdAt-a.createdAt; }).slice(0,5);
+            var ra = document.getElementById('recentArticles');
+            if (ra) ra.innerHTML = recent.length===0
+                ? '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:2rem">No articles yet. Click “Add New” to create one.</td></tr>'
+                : recent.map(function(d){ return '<tr><td><div class="item-title">'+d.title+'</div></td><td><span class="badge badge-'+(d.language||'english')+'">'+(d.language||'english')+'</span></td><td><span class="badge badge-'+(d.status||'draft')+'">'+(d.status||'draft')+'</span></td><td>'+d.createdAt.toLocaleDateString()+'</td></tr>'; }).join('');
+        } catch(err) {
+            console.error('Dashboard error:', err);
+            toast('Dashboard load error: ' + err.message, 'error');
         }
+    }
 
-        document.getElementById('filterLang').addEventListener('change', loadArticles);
-        document.getElementById('filterStatus').addEventListener('change', loadArticles);
-        document.getElementById('articleSearch').addEventListener('input', () => setTimeout(loadArticles, 300));
+    // ── Articles ─────────────────────────────────────────────────────────────
+    async function loadArticles() {
+        var lang   = document.getElementById('filterLang')?.value   || '';
+        var status = document.getElementById('filterStatus')?.value || '';
+        var search = (document.getElementById('articleSearch')?.value || '').toLowerCase();
+        try {
+            var snap = await db.collection('articles').orderBy('createdAt','desc').get();
+            var docs = snap.docs.map(function(d){ return Object.assign({id:d.id},d.data(),{createdAt:d.data().createdAt?.toDate()||new Date()}); });
+            if (lang)   docs = docs.filter(function(a){ return a.language===lang; });
+            if (status) docs = docs.filter(function(a){ return a.status===status; });
+            if (search) docs = docs.filter(function(a){ return (a.title||'').toLowerCase().includes(search); });
+            var tb = document.getElementById('articlesTable');
+            if (!tb) return;
+            tb.innerHTML = docs.length===0
+                ? '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:2rem">No articles found</td></tr>'
+                : docs.map(function(a){ return '<tr><td class="checkbox-cell"><input type="checkbox" data-id="'+a.id+'" onchange="updateSelection(this)"></td><td><div class="item-title">'+a.title+'</div><div class="item-excerpt">'+(a.excerpt||'')+'</div></td><td><span class="badge badge-'+(a.language||'english')+'">'+(a.language||'english')+'</span></td><td><span class="badge badge-'+(a.status||'draft')+'">'+(a.status||'draft')+'</span></td><td>'+a.createdAt.toLocaleDateString()+'</td><td><div class="actions"><button class="action-btn" onclick="editArticle(''+a.id+'')" title="Edit">&#x270F;&#xFE0F;</button><button class="action-btn" onclick="window.open('../pages/article.html?id='+a.id+'','_blank')" title="View">&#x1F441;&#xFE0F;</button><button class="action-btn delete" onclick="deleteItem('articles',''+a.id+'')" title="Delete">&#x1F5D1;&#xFE0F;</button></div></td></tr>'; }).join('');
+        } catch(err) { toast('Error loading articles: '+err.message,'error'); }
+    }
 
-        function openArticleModal() {
-            document.getElementById('articleId').value='';
-            document.getElementById('articleModalTitle').textContent='Add Article';
-            document.getElementById('articleForm').reset();
-            document.getElementById('articleContent').innerHTML='';
-            document.getElementById('imageUpload').classList.remove('has-image');
-            document.getElementById('imageUploadText').innerHTML='<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><div>Click to upload image</div>';
-            currentImageUrl=null; openModal('articleModal'); setupAutoSave();
-        }
+    var flEl = document.getElementById('filterLang');
+    var fsEl = document.getElementById('filterStatus');
+    var asEl = document.getElementById('articleSearch');
+    if (flEl) flEl.addEventListener('change', loadArticles);
+    if (fsEl) fsEl.addEventListener('change', loadArticles);
+    if (asEl) asEl.addEventListener('input', function(){ setTimeout(loadArticles,300); });
 
-        async function editArticle(id) {
-            try {
-                const snap = await db.collection('articles').doc(id).get();
-                if (!snap.exists) return;
-                const d = snap.data();
-                document.getElementById('articleId').value=id;
-                document.getElementById('articleLang').value=d.language||'english';
-                document.getElementById('articleStatus').value=d.status||'draft';
-                document.getElementById('articleTitle').value=d.title||'';
-                document.getElementById('articleExcerpt').value=d.excerpt||'';
-                document.getElementById('articleContent').innerHTML=d.content||'';
-                document.getElementById('articleFeatured').checked=d.featured||false;
-                document.getElementById('articleModalTitle').textContent='Edit Article';
-                currentImageUrl=d.image||null;
-                if (d.image) { document.getElementById('imageUpload').classList.add('has-image'); document.getElementById('imageUploadText').innerHTML=`<img src="${d.image}" alt="Featured">`; }
-                openModal('articleModal'); setupAutoSave();
-            } catch(err) { toast('Error loading article','error'); }
-        }
+    function openArticleModal() {
+        document.getElementById('articleId').value = '';
+        document.getElementById('articleModalTitle').textContent = 'Add Article';
+        document.getElementById('articleForm').reset();
+        document.getElementById('articleContent').innerHTML = '';
+        document.getElementById('imageUpload').classList.remove('has-image');
+        document.getElementById('imageUploadText').innerHTML = '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><div>Click to upload image</div>';
+        currentImageUrl = null;
+        openModal('articleModal');
+        setupAutoSave();
+    }
 
-        async function saveArticle() {
-            const id = document.getElementById('articleId').value;
-            const data = { language:document.getElementById('articleLang').value, status:document.getElementById('articleStatus').value, title:document.getElementById('articleTitle').value, excerpt:document.getElementById('articleExcerpt').value, content:document.getElementById('articleContent').innerHTML, featured:document.getElementById('articleFeatured').checked, image:currentImageUrl||null, updatedAt:TS() };
-            if (!data.title) { toast('Title required','error'); return; }
-            try {
-                if (id) await db.collection('articles').doc(id).update(data);
-                else { data.createdAt=TS(); await db.collection('articles').add(data); }
-                closeModal('articleModal'); toast('Saved!','success'); loadArticles(); loadDashboard();
-            } catch(err) { toast('Error: '+err.message,'error'); }
-        }
-
-        function setupAutoSave() {
-            if (autoSaveTimer) clearInterval(autoSaveTimer);
-            autoSaveTimer = setInterval(() => {
-                const t=document.getElementById('articleTitle').value, ct=document.getElementById('articleContent').innerHTML;
-                if (t||ct) { localStorage.setItem('article_draft',JSON.stringify({t,ct,time:Date.now()})); document.getElementById('autoSaveStatus').textContent='Auto-saved'; setTimeout(()=>document.getElementById('autoSaveStatus').textContent='',2000); }
-            }, 30000);
-        }
-
-        function handleImageUpload(e) {
-            const file=e.target.files[0]; if(!file) return;
-            const reader=new FileReader();
-            reader.onload=ev=>{ document.getElementById('imageUpload').classList.add('has-image'); document.getElementById('imageUploadText').innerHTML=`<img src="${ev.target.result}" alt="Preview">`; currentImageUrl=ev.target.result; };
-            reader.readAsDataURL(file);
-        }
-
-        function updateSelection(cb) { if(cb.checked) selectedItems.add(cb.dataset.id); else selectedItems.delete(cb.dataset.id); updateBulkActions(); }
-        function updateBulkActions() { const n=selectedItems.size; document.getElementById('bulkActions').classList.toggle('active',n>0); document.getElementById('selectedCount').textContent=n; }
-        function toggleSelectAll() { const chk=document.getElementById('selectAll').checked; document.querySelectorAll('#articlesTable input[type="checkbox"]').forEach(cb=>{cb.checked=chk; if(chk) selectedItems.add(cb.dataset.id); else selectedItems.delete(cb.dataset.id)}); updateBulkActions(); }
-        function clearSelection() { selectedItems.clear(); document.querySelectorAll('input[type="checkbox"]').forEach(cb=>cb.checked=false); updateBulkActions(); }
-
-        async function bulkDelete() {
-            if (!confirm(`Delete ${selectedItems.size} items?`)) return;
-            const batch = db.batch();
-            selectedItems.forEach(id => batch.delete(db.collection('articles').doc(id)));
-            await batch.commit();
-            toast('Deleted!','success'); clearSelection(); loadArticles(); loadDashboard();
-        }
-        async function bulkPublish() {
-            const batch = db.batch();
-            selectedItems.forEach(id => batch.update(db.collection('articles').doc(id), {status:'published',updatedAt:TS()}));
-            await batch.commit();
-            toast('Published!','success'); clearSelection(); loadArticles();
-        }
-
-        // ── Media ────────────────────────────────────────────────────────────
-        async function loadMedia() {
-            try {
-                const snap = await db.collection('media').orderBy('createdAt','desc').get();
-                const items = snap.docs.map(d=>({id:d.id,...d.data(),createdAt:d.data().createdAt?.toDate()||new Date()}));
-                document.getElementById('mediaTable').innerHTML = items.length===0
-                    ? '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:2rem">No videos</td></tr>'
-                    : items.map(m=>`<tr><td><div class="item-title">${m.title}</div><div class="item-excerpt">${m.youtubeUrl||m.url||''}</div></td><td><span class="badge badge-${m.language}">${m.language}</span></td><td>${m.createdAt.toLocaleDateString()}</td><td><div class="actions"><button class="action-btn delete" onclick="deleteItem('media','${m.id}')">🗑️</button></div></td></tr>`).join('');
-            } catch(err) { toast('Error loading media','error'); }
-        }
-
-        async function saveMedia() {
-            const id=document.getElementById('mediaId').value;
-            const ytUrl=document.getElementById('mediaUrl').value.trim();
-            const data={type:'video',language:document.getElementById('mediaLang').value,title:document.getElementById('mediaTitle').value,youtubeUrl:ytUrl,url:ytUrl,duration:document.getElementById('mediaDuration').value||'',description:document.getElementById('mediaDesc').value||'',updatedAt:TS()};
-            if (!data.title) { toast('Title required','error'); return; }
-            if (!ytUrl||!ytUrl.includes('youtube')) { toast('Please enter a valid YouTube URL','error'); return; }
-            try {
-                if (id) await db.collection('media').doc(id).update(data);
-                else { data.createdAt=TS(); await db.collection('media').add(data); }
-                closeModal('mediaModal'); toast('Saved!','success'); loadMedia(); loadDashboard();
-            } catch(err) { toast('Error','error'); }
-        }
-
-        // ── Documents ────────────────────────────────────────────────────────
-        async function loadDocuments() {
-            const langF=document.getElementById('filterDocLang')?.value||'', statusF=document.getElementById('filterDocStatus')?.value||'';
-            try {
-                const snap = await db.collection('documents').orderBy('createdAt','desc').get();
-                let docs = snap.docs.map(d=>({id:d.id,...d.data(),createdAt:d.data().createdAt?.toDate()||new Date()}));
-                if (langF)   docs=docs.filter(d=>d.language===langF);
-                if (statusF) docs=docs.filter(d=>d.status===statusF);
-                document.getElementById('documentsTable').innerHTML = docs.length===0
-                    ? '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:2rem">No documents</td></tr>'
-                    : docs.map(d=>{const sc=d.status==='published'?'badge-published':'badge-draft'; return`<tr><td><div class="item-title">${d.title}</div><div class="item-excerpt">${d.excerpt||''}</div></td><td><span class="badge badge-${d.language||'english'}">${d.language||'english'}</span></td><td><span class="badge ${sc}">${d.status||'draft'}</span></td><td>${d.createdAt.toLocaleDateString()}</td><td><div class="actions"><button class="action-btn" onclick="editDocument('${d.id}')">✏️</button><button class="action-btn" onclick="window.open('../pages/document.html?id=${d.id}','_blank')" title="View">👁️</button><button class="action-btn delete" onclick="deleteItem('documents','${d.id}')">🗑️</button></div></td></tr>`;}).join('');
-                document.getElementById('filterDocLang')?.addEventListener('change',loadDocuments);
-                document.getElementById('filterDocStatus')?.addEventListener('change',loadDocuments);
-            } catch(err) { toast('Error loading documents','error'); }
-        }
-
-        function openDocumentModal() {
-            document.getElementById('docId').value='';
-            document.getElementById('documentModalTitle').textContent='Add Document';
-            document.getElementById('documentForm').reset();
-            document.getElementById('docContent').innerHTML='';
-            document.getElementById('docImageUpload').classList.remove('has-image');
-            document.getElementById('docImageUploadText').innerHTML='<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><div>Click to upload image</div>';
-            currentDocImageUrl=null; openModal('documentModal');
-        }
-
-        async function editDocument(id) {
-            try {
-                const snap = await db.collection('documents').doc(id).get();
-                if (!snap.exists) return;
-                const d = snap.data();
-                document.getElementById('docId').value=id;
-                document.getElementById('docLang').value=d.language||'english';
-                document.getElementById('docStatus').value=d.status||'draft';
-                document.getElementById('docTitle').value=d.title||'';
-                document.getElementById('docExcerpt').value=d.excerpt||'';
-                document.getElementById('docContent').innerHTML=d.content||'';
-                document.getElementById('docFeatured').checked=d.featured||false;
-                document.getElementById('documentModalTitle').textContent='Edit Document';
-                currentDocImageUrl=d.image||null;
-                if (d.image) { document.getElementById('docImageUpload').classList.add('has-image'); document.getElementById('docImageUploadText').innerHTML=`<img src="${d.image}" alt="Featured">`; }
-                openModal('documentModal');
-            } catch(err) { toast('Error loading document','error'); }
-        }
-
-        async function saveDocument() {
-            const id=document.getElementById('docId').value;
-            const data={title:document.getElementById('docTitle').value,language:document.getElementById('docLang').value,status:document.getElementById('docStatus').value,excerpt:document.getElementById('docExcerpt').value,content:document.getElementById('docContent').innerHTML,featured:document.getElementById('docFeatured').checked,image:currentDocImageUrl||null,updatedAt:TS()};
-            if (!data.title) { toast('Title required','error'); return; }
-            try {
-                if (id) await db.collection('documents').doc(id).update(data);
-                else { data.createdAt=TS(); await db.collection('documents').add(data); }
-                closeModal('documentModal'); toast('Saved!','success'); loadDocuments(); loadDashboard();
-            } catch(err) { console.error(err); toast('Error saving document','error'); }
-        }
-
-        function handleDocImageUpload(e) {
-            const file=e.target.files[0]; if(!file) return;
-            const reader=new FileReader();
-            reader.onload=ev=>{ document.getElementById('docImageUpload').classList.add('has-image'); document.getElementById('docImageUploadText').innerHTML=`<img src="${ev.target.result}" alt="Preview">`; currentDocImageUrl=ev.target.result; };
-            reader.readAsDataURL(file);
-        }
-        function execDocCmd(cmd,val=null){ document.execCommand(cmd,false,val); document.getElementById('docContent').focus(); }
-
-        // ── Events ───────────────────────────────────────────────────────────
-        async function loadEvents() {
-            try {
-                const snap = await db.collection('events').orderBy('date','asc').get();
-                const events = snap.docs.map(d=>({id:d.id,...d.data(),date:d.data().date?.toDate()||new Date()}));
-                document.getElementById('eventsTable').innerHTML = events.length===0
-                    ? '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:2rem">No events</td></tr>'
-                    : events.map(d=>`<tr><td><div class="item-title">${d.title}</div><div class="item-excerpt">${d.description||''}</div></td><td>${d.date.toLocaleDateString()}</td><td>${d.location||'-'}</td><td><div class="actions"><button class="action-btn" onclick="editEvent('${d.id}')">✏️</button><button class="action-btn delete" onclick="deleteItem('events','${d.id}')">🗑️</button></div></td></tr>`).join('');
-            } catch(err) { toast('Error loading events','error'); }
-        }
-
-        async function editEvent(id) {
-            const snap = await db.collection('events').doc(id).get();
+    async function editArticle(id) {
+        try {
+            var snap = await db.collection('articles').doc(id).get();
             if (!snap.exists) return;
-            const d=snap.data();
-            document.getElementById('eventId').value=id;
-            document.getElementById('eventTitle').value=d.title||'';
-            const dt=d.date?.toDate()||new Date();
-            document.getElementById('eventDate').value=dt.toISOString().split('T')[0];
-            document.getElementById('eventLocation').value=d.location||'';
-            document.getElementById('eventDesc').value=d.description||'';
-            openModal('eventModal');
-        }
+            var d = snap.data();
+            document.getElementById('articleId').value       = id;
+            document.getElementById('articleLang').value     = d.language   || 'english';
+            document.getElementById('articleStatus').value   = d.status     || 'draft';
+            document.getElementById('articleTitle').value    = d.title      || '';
+            document.getElementById('articleExcerpt').value  = d.excerpt    || '';
+            document.getElementById('articleContent').innerHTML = d.content || '';
+            document.getElementById('articleFeatured').checked = d.featured || false;
+            document.getElementById('articleModalTitle').textContent = 'Edit Article';
+            currentImageUrl = d.image || null;
+            if (d.image) {
+                document.getElementById('imageUpload').classList.add('has-image');
+                document.getElementById('imageUploadText').innerHTML = '<img src="'+d.image+'" alt="Featured">';
+            }
+            openModal('articleModal');
+            setupAutoSave();
+        } catch(err) { toast('Error loading article: '+err.message,'error'); }
+    }
 
-        async function saveEvent() {
-            const id=document.getElementById('eventId').value, dateVal=document.getElementById('eventDate').value;
-            const data={title:document.getElementById('eventTitle').value,date:dateVal?firebase.firestore.Timestamp.fromDate(new Date(dateVal)):null,location:document.getElementById('eventLocation').value,description:document.getElementById('eventDesc').value||'',updatedAt:TS()};
-            if (!data.title) { toast('Title required','error'); return; }
-            try {
-                if (id) await db.collection('events').doc(id).update(data);
-                else { data.createdAt=TS(); await db.collection('events').add(data); }
-                closeModal('eventModal'); toast('Saved!','success'); loadEvents(); loadDashboard();
-            } catch(err) { toast('Error','error'); }
-        }
+    async function saveArticle() {
+        var id   = document.getElementById('articleId').value;
+        var data = {
+            language: document.getElementById('articleLang').value,
+            status:   document.getElementById('articleStatus').value,
+            title:    document.getElementById('articleTitle').value,
+            excerpt:  document.getElementById('articleExcerpt').value,
+            content:  document.getElementById('articleContent').innerHTML,
+            featured: document.getElementById('articleFeatured').checked,
+            image:    currentImageUrl || null,
+            updatedAt: TS()
+        };
+        if (!data.title) { toast('Title required','error'); return; }
+        try {
+            if (id) await db.collection('articles').doc(id).update(data);
+            else    { data.createdAt = TS(); await db.collection('articles').add(data); }
+            closeModal('articleModal');
+            toast('Saved!','success');
+            loadArticles();
+            loadDashboard();
+        } catch(err) { toast('Error: '+err.message,'error'); }
+    }
 
-        // ── Photos ───────────────────────────────────────────────────────────
-        async function loadPhotos() {
-            try {
-                const snap = await db.collection('photos').orderBy('createdAt','desc').get();
-                const photos = snap.docs.map(d=>({id:d.id,...d.data()}));
-                const grid=document.getElementById('photosAdminGrid');
-                grid.innerHTML = photos.length===0
-                    ? '<p style="color:var(--muted);grid-column:1/-1;text-align:center;padding:2rem;">No photos yet.</p>'
-                    : photos.map(p=>`<div style="position:relative;border-radius:8px;overflow:hidden;border:1px solid var(--border);"><img src="${p.image}" style="width:100%;height:140px;object-fit:cover;display:block;" loading="lazy"><div style="position:absolute;top:6px;right:6px;display:flex;gap:4px;"><button onclick="deleteItem('photos','${p.id}')" style="width:28px;height:28px;border-radius:6px;border:none;background:rgba(192,39,29,0.9);color:white;cursor:pointer;font-size:.8rem;">🗑️</button></div>${p.title?`<div style="padding:6px 8px;font-size:.78rem;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.title}</div>`:''}</div>`).join('');
-            } catch(err) { toast('Error loading photos','error'); }
-        }
+    function setupAutoSave() {
+        if (autoSaveTimer) clearInterval(autoSaveTimer);
+        autoSaveTimer = setInterval(function() {
+            var t  = document.getElementById('articleTitle').value;
+            var ct = document.getElementById('articleContent').innerHTML;
+            if (t || ct) {
+                localStorage.setItem('article_draft', JSON.stringify({t:t,ct:ct,time:Date.now()}));
+                var el = document.getElementById('autoSaveStatus');
+                if (el) { el.textContent='Auto-saved'; setTimeout(function(){ el.textContent=''; },2000); }
+            }
+        }, 30000);
+    }
 
-        function openPhotoModal() {
-            document.getElementById('photoId').value='';
-            document.getElementById('photoModalTitle').textContent='Add Photo';
-            document.getElementById('photoForm').reset();
-            document.getElementById('photoImageUpload').classList.remove('has-image');
-            document.getElementById('photoImageText').innerHTML='<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><div>Click to upload photo</div>';
-            currentPhotoImageUrl=null; openModal('photoModal');
-        }
+    function handleImageUpload(e) {
+        var file = e.target.files[0]; if(!file) return;
+        var reader = new FileReader();
+        reader.onload = function(ev) {
+            document.getElementById('imageUpload').classList.add('has-image');
+            document.getElementById('imageUploadText').innerHTML = '<img src="'+ev.target.result+'" alt="Preview">';
+            currentImageUrl = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
 
-        function handlePhotoUpload(e) {
-            const file=e.target.files[0]; if(!file) return;
-            const img=new Image(); const reader=new FileReader();
-            reader.onload=ev=>{ img.onload=()=>{ const MAX=1200,canvas=document.createElement('canvas'); let w=img.width,h=img.height; if(w>MAX||h>MAX){if(w>h){h=Math.round(h*(MAX/w));w=MAX;}else{w=Math.round(w*(MAX/h));h=MAX;}} canvas.width=w;canvas.height=h; canvas.getContext('2d').drawImage(img,0,0,w,h); const data=canvas.toDataURL('image/jpeg',0.82); currentPhotoImageUrl=data; document.getElementById('photoImageUpload').classList.add('has-image'); document.getElementById('photoImageText').innerHTML=`<img src="${data}" alt="Preview">`; }; img.src=ev.target.result; };
-            reader.readAsDataURL(file);
-        }
+    function updateSelection(cb) { if(cb.checked) selectedItems.add(cb.dataset.id); else selectedItems.delete(cb.dataset.id); updateBulkActions(); }
+    function updateBulkActions() { var n=selectedItems.size; var el=document.getElementById('bulkActions'); if(el) el.classList.toggle('active',n>0); var sc=document.getElementById('selectedCount'); if(sc) sc.textContent=n; }
+    function toggleSelectAll() { var chk=document.getElementById('selectAll'); document.querySelectorAll('#articlesTable input[type="checkbox"]').forEach(function(cb){ cb.checked=chk.checked; if(chk.checked) selectedItems.add(cb.dataset.id); else selectedItems.delete(cb.dataset.id); }); updateBulkActions(); }
+    function clearSelection() { selectedItems.clear(); document.querySelectorAll('input[type="checkbox"]').forEach(function(cb){ cb.checked=false; }); updateBulkActions(); }
 
-        async function savePhoto() {
-            if (!currentPhotoImageUrl) { toast('Please upload a photo','error'); return; }
-            const data={image:currentPhotoImageUrl,title:document.getElementById('photoTitle').value||'',caption:document.getElementById('photoCaption').value||'',createdAt:TS()};
-            try { await db.collection('photos').add(data); closeModal('photoModal'); toast('Photo saved!','success'); loadPhotos(); loadDashboard(); }
-            catch(err) { toast('Error saving photo','error'); }
-        }
+    async function bulkDelete() {
+        if (!confirm('Delete '+selectedItems.size+' items?')) return;
+        var batch = db.batch();
+        selectedItems.forEach(function(id){ batch.delete(db.collection('articles').doc(id)); });
+        await batch.commit();
+        toast('Deleted!','success'); clearSelection(); loadArticles(); loadDashboard();
+    }
+    async function bulkPublish() {
+        var batch = db.batch();
+        selectedItems.forEach(function(id){ batch.update(db.collection('articles').doc(id),{status:'published',updatedAt:TS()}); });
+        await batch.commit();
+        toast('Published!','success'); clearSelection(); loadArticles();
+    }
 
-        // ── Messages ─────────────────────────────────────────────────────────
-        async function loadMessages() {
-            try {
-                const snap = await db.collection('messages').orderBy('sentAt','desc').get();
-                const msgs = snap.docs.map(d=>({id:d.id,...d.data(),sentAt:d.data().sentAt?.toDate()||new Date()}));
-                document.getElementById('messagesTable').innerHTML = msgs.length===0
-                    ? '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:2rem">No messages yet</td></tr>'
-                    : msgs.map(m=>{
-                        const unread=!m.read;
-                        const titleStyle=unread?'font-weight:700':'';
-                        return`<tr style="${unread?'background:rgba(192,39,29,0.04)':''}"><td><div class="item-title" style="${titleStyle}">${m.name||'—'}</div></td><td style="font-size:.85rem">${m.email||'—'}</td><td><div class="item-excerpt" style="max-width:200px;${titleStyle}">${m.subject||m.message?.slice(0,60)||'—'}</div></td><td style="font-size:.82rem">${m.sentAt.toLocaleDateString()}</td><td>${unread?'<span style="background:rgba(192,39,29,0.15);color:#C0271D;padding:.2rem .5rem;border-radius:4px;font-size:.75rem;font-weight:700;">New</span>':'<span style="color:var(--muted);font-size:.78rem">Read</span>'}</td><td><div class="actions"><button class="action-btn" onclick="viewMessage('${m.id}')" title="View">👁️</button><button class="action-btn delete" onclick="deleteItem('messages','${m.id}')" title="Delete">🗑️</button></div></td></tr>`;
-                    }).join('');
-            } catch(err) { toast('Error loading messages','error'); }
-        }
+    function execCmd(cmd,val) { document.execCommand(cmd,false,val||null); document.getElementById('articleContent').focus(); }
 
-        async function viewMessage(id) {
-            const snap = await db.collection('messages').doc(id).get();
+    // ── Media ─────────────────────────────────────────────────────────────────
+    async function loadMedia() {
+        try {
+            var snap = await db.collection('media').orderBy('createdAt','desc').get();
+            var items = snap.docs.map(function(d){ return Object.assign({id:d.id},d.data(),{createdAt:d.data().createdAt?.toDate()||new Date()}); });
+            var tb = document.getElementById('mediaTable');
+            if (!tb) return;
+            tb.innerHTML = items.length===0
+                ? '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:2rem">No videos yet</td></tr>'
+                : items.map(function(m){ return '<tr><td><div class="item-title">'+m.title+'</div><div class="item-excerpt">'+(m.youtubeUrl||m.url||'')+'</div></td><td><span class="badge badge-'+(m.language||'english')+'">'+(m.language||'english')+'</span></td><td>'+m.createdAt.toLocaleDateString()+'</td><td><div class="actions"><button class="action-btn delete" onclick="deleteItem('media',''+m.id+'')">&#x1F5D1;&#xFE0F;</button></div></td></tr>'; }).join('');
+        } catch(err) { toast('Error loading media: '+err.message,'error'); }
+    }
+
+    async function saveMedia() {
+        var id    = document.getElementById('mediaId').value;
+        var ytUrl = (document.getElementById('mediaUrl').value||'').trim();
+        var data  = {
+            type:'video', language:document.getElementById('mediaLang').value,
+            title:document.getElementById('mediaTitle').value,
+            youtubeUrl:ytUrl, url:ytUrl,
+            duration:document.getElementById('mediaDuration').value||'',
+            description:document.getElementById('mediaDesc').value||'',
+            updatedAt:TS()
+        };
+        if (!data.title)                              { toast('Title required','error'); return; }
+        if (!ytUrl || !ytUrl.includes('youtube'))     { toast('Please enter a valid YouTube URL','error'); return; }
+        try {
+            if (id) await db.collection('media').doc(id).update(data);
+            else    { data.createdAt=TS(); await db.collection('media').add(data); }
+            closeModal('mediaModal'); toast('Saved!','success'); loadMedia(); loadDashboard();
+        } catch(err) { toast('Error: '+err.message,'error'); }
+    }
+
+    // ── Documents ─────────────────────────────────────────────────────────────
+    async function loadDocuments() {
+        var langF   = document.getElementById('filterDocLang')?.value   || '';
+        var statusF = document.getElementById('filterDocStatus')?.value || '';
+        try {
+            var snap = await db.collection('documents').orderBy('createdAt','desc').get();
+            var docs = snap.docs.map(function(d){ return Object.assign({id:d.id},d.data(),{createdAt:d.data().createdAt?.toDate()||new Date()}); });
+            if (langF)   docs = docs.filter(function(d){ return d.language===langF; });
+            if (statusF) docs = docs.filter(function(d){ return d.status===statusF; });
+            var tb = document.getElementById('documentsTable');
+            if (!tb) return;
+            tb.innerHTML = docs.length===0
+                ? '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:2rem">No documents yet</td></tr>'
+                : docs.map(function(d){ var sc=d.status==='published'?'badge-published':'badge-draft'; return '<tr><td><div class="item-title">'+d.title+'</div><div class="item-excerpt">'+(d.excerpt||'')+'</div></td><td><span class="badge badge-'+(d.language||'english')+'">'+(d.language||'english')+'</span></td><td><span class="badge '+sc+'">'+(d.status||'draft')+'</span></td><td>'+d.createdAt.toLocaleDateString()+'</td><td><div class="actions"><button class="action-btn" onclick="editDocument(''+d.id+'')" title="Edit">&#x270F;&#xFE0F;</button><button class="action-btn" onclick="window.open('../pages/document.html?id='+d.id+'','_blank')" title="View">&#x1F441;&#xFE0F;</button><button class="action-btn delete" onclick="deleteItem('documents',''+d.id+'')" title="Delete">&#x1F5D1;&#xFE0F;</button></div></td></tr>'; }).join('');
+            var fl = document.getElementById('filterDocLang');
+            var fs = document.getElementById('filterDocStatus');
+            if (fl && !fl._bound) { fl.addEventListener('change',loadDocuments); fl._bound=true; }
+            if (fs && !fs._bound) { fs.addEventListener('change',loadDocuments); fs._bound=true; }
+        } catch(err) { toast('Error loading documents: '+err.message,'error'); }
+    }
+
+    function openDocumentModal() {
+        document.getElementById('docId').value = '';
+        document.getElementById('documentModalTitle').textContent = 'Add Document';
+        document.getElementById('documentForm').reset();
+        document.getElementById('docContent').innerHTML = '';
+        document.getElementById('docImageUpload').classList.remove('has-image');
+        document.getElementById('docImageUploadText').innerHTML = '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><div>Click to upload image</div>';
+        currentDocImageUrl = null;
+        openModal('documentModal');
+    }
+
+    async function editDocument(id) {
+        try {
+            var snap = await db.collection('documents').doc(id).get();
             if (!snap.exists) return;
-            const m = snap.data();
-            const sentAt = m.sentAt?.toDate()||new Date();
-            if (!m.read) await db.collection('messages').doc(id).update({read:true});
-            alert(`From: ${m.name||'—'} <${m.email||'—'}>
-Subject: ${m.subject||'—'}
-Date: ${sentAt.toLocaleString()}
+            var d = snap.data();
+            document.getElementById('docId').value       = id;
+            document.getElementById('docLang').value     = d.language || 'english';
+            document.getElementById('docStatus').value   = d.status   || 'draft';
+            document.getElementById('docTitle').value    = d.title    || '';
+            document.getElementById('docExcerpt').value  = d.excerpt  || '';
+            document.getElementById('docContent').innerHTML = d.content || '';
+            document.getElementById('docFeatured').checked  = d.featured || false;
+            document.getElementById('documentModalTitle').textContent = 'Edit Document';
+            currentDocImageUrl = d.image || null;
+            if (d.image) { document.getElementById('docImageUpload').classList.add('has-image'); document.getElementById('docImageUploadText').innerHTML='<img src="'+d.image+'" alt="Featured">'; }
+            openModal('documentModal');
+        } catch(err) { toast('Error: '+err.message,'error'); }
+    }
 
-${m.message||'—'}`);
-            loadMessages(); loadDashboard();
-        }
+    async function saveDocument() {
+        var id   = document.getElementById('docId').value;
+        var data = {
+            title:    document.getElementById('docTitle').value,
+            language: document.getElementById('docLang').value,
+            status:   document.getElementById('docStatus').value,
+            excerpt:  document.getElementById('docExcerpt').value,
+            content:  document.getElementById('docContent').innerHTML,
+            featured: document.getElementById('docFeatured').checked,
+            image:    currentDocImageUrl || null,
+            updatedAt: TS()
+        };
+        if (!data.title) { toast('Title required','error'); return; }
+        try {
+            if (id) await db.collection('documents').doc(id).update(data);
+            else    { data.createdAt=TS(); await db.collection('documents').add(data); }
+            closeModal('documentModal'); toast('Saved!','success'); loadDocuments(); loadDashboard();
+        } catch(err) { toast('Error: '+err.message,'error'); }
+    }
 
-        // ── Subscribers ──────────────────────────────────────────────────────
-        async function loadSubscribers() {
-            try {
-                const snap = await db.collection('subscribers').orderBy('subscribedAt','desc').get();
-                const subs = snap.docs.map(d=>({id:d.id,...d.data(),subscribedAt:d.data().subscribedAt?.toDate()||new Date()}));
-                document.getElementById('subscribersTable').innerHTML = subs.length===0
-                    ? '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:2rem">No subscribers yet</td></tr>'
-                    : subs.map(s=>`<tr><td style="font-weight:500">${s.email}</td><td style="font-size:.85rem">${s.source||'—'}</td><td style="font-size:.85rem">${s.subscribedAt.toLocaleDateString()}</td><td><div class="actions"><button class="action-btn delete" onclick="deleteItem('subscribers','${s.id}')" title="Remove">🗑️</button></div></td></tr>`).join('');
-            } catch(err) { toast('Error loading subscribers','error'); }
-        }
+    function handleDocImageUpload(e) {
+        var file = e.target.files[0]; if(!file) return;
+        var reader = new FileReader();
+        reader.onload = function(ev) {
+            document.getElementById('docImageUpload').classList.add('has-image');
+            document.getElementById('docImageUploadText').innerHTML = '<img src="'+ev.target.result+'" alt="Preview">';
+            currentDocImageUrl = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
 
-        async function exportSubscribers() {
-            const snap = await db.collection('subscribers').orderBy('subscribedAt','desc').get();
-            const rows = ['Email,Source,Date'];
-            snap.docs.forEach(d=>{const s=d.data(),dt=s.subscribedAt?.toDate()||new Date(); rows.push(`${s.email},${s.source||''},${dt.toISOString().split('T')[0]}`);});
-            const blob=new Blob([rows.join('
+    function execDocCmd(cmd,val) { document.execCommand(cmd,false,val||null); document.getElementById('docContent').focus(); }
+
+    // ── Events ────────────────────────────────────────────────────────────────
+    async function loadEvents() {
+        try {
+            var snap = await db.collection('events').orderBy('date','asc').get();
+            var events = snap.docs.map(function(d){ return Object.assign({id:d.id},d.data(),{date:d.data().date?.toDate()||new Date()}); });
+            var tb = document.getElementById('eventsTable');
+            if (!tb) return;
+            tb.innerHTML = events.length===0
+                ? '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:2rem">No events yet</td></tr>'
+                : events.map(function(d){ return '<tr><td><div class="item-title">'+d.title+'</div><div class="item-excerpt">'+(d.description||'')+'</div></td><td>'+d.date.toLocaleDateString()+'</td><td>'+(d.location||'-')+'</td><td><div class="actions"><button class="action-btn" onclick="editEvent(''+d.id+'')" title="Edit">&#x270F;&#xFE0F;</button><button class="action-btn delete" onclick="deleteItem('events',''+d.id+'')" title="Delete">&#x1F5D1;&#xFE0F;</button></div></td></tr>'; }).join('');
+        } catch(err) { toast('Error loading events: '+err.message,'error'); }
+    }
+
+    async function editEvent(id) {
+        var snap = await db.collection('events').doc(id).get();
+        if (!snap.exists) return;
+        var d = snap.data();
+        document.getElementById('eventId').value       = id;
+        document.getElementById('eventTitle').value    = d.title    || '';
+        document.getElementById('eventLocation').value = d.location || '';
+        document.getElementById('eventDesc').value     = d.description || '';
+        var dt = d.date?.toDate() || new Date();
+        document.getElementById('eventDate').value = dt.toISOString().split('T')[0];
+        openModal('eventModal');
+    }
+
+    async function saveEvent() {
+        var id      = document.getElementById('eventId').value;
+        var dateVal = document.getElementById('eventDate').value;
+        var data    = {
+            title:       document.getElementById('eventTitle').value,
+            date:        dateVal ? firebase.firestore.Timestamp.fromDate(new Date(dateVal)) : null,
+            location:    document.getElementById('eventLocation').value,
+            description: document.getElementById('eventDesc').value || '',
+            updatedAt:   TS()
+        };
+        if (!data.title) { toast('Title required','error'); return; }
+        try {
+            if (id) await db.collection('events').doc(id).update(data);
+            else    { data.createdAt=TS(); await db.collection('events').add(data); }
+            closeModal('eventModal'); toast('Saved!','success'); loadEvents(); loadDashboard();
+        } catch(err) { toast('Error: '+err.message,'error'); }
+    }
+
+    // ── Photos ────────────────────────────────────────────────────────────────
+    async function loadPhotos() {
+        try {
+            var snap = await db.collection('photos').orderBy('createdAt','desc').get();
+            var photos = snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); });
+            var grid = document.getElementById('photosAdminGrid');
+            if (!grid) return;
+            grid.innerHTML = photos.length===0
+                ? '<p style="color:var(--muted);grid-column:1/-1;text-align:center;padding:2rem;">No photos yet.</p>'
+                : photos.map(function(p){ return '<div style="position:relative;border-radius:8px;overflow:hidden;border:1px solid var(--border)"><img src="'+p.image+'" style="width:100%;height:140px;object-fit:cover;display:block;" loading="lazy"><div style="position:absolute;top:6px;right:6px"><button onclick="deleteItem('photos',''+p.id+'')" style="width:28px;height:28px;border-radius:6px;border:none;background:rgba(192,39,29,0.9);color:white;cursor:pointer;">&#x1F5D1;</button></div>'+(p.title?'<div style="padding:6px 8px;font-size:.78rem;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+p.title+'</div>':'')+'</div>'; }).join('');
+        } catch(err) { toast('Error loading photos: '+err.message,'error'); }
+    }
+
+    function openPhotoModal() {
+        document.getElementById('photoId').value = '';
+        document.getElementById('photoModalTitle').textContent = 'Add Photo';
+        document.getElementById('photoForm').reset();
+        document.getElementById('photoImageUpload').classList.remove('has-image');
+        document.getElementById('photoImageText').innerHTML = '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><div>Click to upload photo</div>';
+        currentPhotoImageUrl = null;
+        openModal('photoModal');
+    }
+
+    function handlePhotoUpload(e) {
+        var file=e.target.files[0]; if(!file) return;
+        var img=new Image(), reader=new FileReader();
+        reader.onload=function(ev){
+            img.onload=function(){
+                var MAX=1200,canvas=document.createElement('canvas');
+                var w=img.width,h=img.height;
+                if(w>MAX||h>MAX){ if(w>h){h=Math.round(h*(MAX/w));w=MAX;}else{w=Math.round(w*(MAX/h));h=MAX;} }
+                canvas.width=w; canvas.height=h;
+                canvas.getContext('2d').drawImage(img,0,0,w,h);
+                var data=canvas.toDataURL('image/jpeg',0.82);
+                currentPhotoImageUrl=data;
+                document.getElementById('photoImageUpload').classList.add('has-image');
+                document.getElementById('photoImageText').innerHTML='<img src="'+data+'" alt="Preview">';
+            };
+            img.src=ev.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    async function savePhoto() {
+        if (!currentPhotoImageUrl) { toast('Please upload a photo','error'); return; }
+        var data = {
+            image:   currentPhotoImageUrl,
+            title:   document.getElementById('photoTitle').value   || '',
+            caption: document.getElementById('photoCaption').value || '',
+            createdAt: TS()
+        };
+        try {
+            await db.collection('photos').add(data);
+            closeModal('photoModal'); toast('Photo saved!','success'); loadPhotos(); loadDashboard();
+        } catch(err) { toast('Error: '+err.message,'error'); }
+    }
+
+    // ── Messages ──────────────────────────────────────────────────────────────
+    async function loadMessages() {
+        try {
+            var snap = await db.collection('messages').orderBy('sentAt','desc').get();
+            var msgs = snap.docs.map(function(d){ return Object.assign({id:d.id},d.data(),{sentAt:d.data().sentAt?.toDate()||new Date()}); });
+            var tb = document.getElementById('messagesTable');
+            if (!tb) return;
+            tb.innerHTML = msgs.length===0
+                ? '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:2rem">No messages yet</td></tr>'
+                : msgs.map(function(m){
+                    var unread=!m.read;
+                    var ts=unread?'font-weight:700':'';
+                    return '<tr style="'+(unread?'background:rgba(192,39,29,0.04)':'')+'"><td><div class="item-title" style="'+ts+'">'+(m.name||'—')+'</div></td><td style="font-size:.85rem">'+(m.email||'—')+'</td><td><div class="item-excerpt" style="max-width:200px;'+ts+'">'+(m.subject||m.message?.slice(0,60)||'—')+'</div></td><td style="font-size:.82rem">'+m.sentAt.toLocaleDateString()+'</td><td>'+(unread?'<span style="background:rgba(192,39,29,0.15);color:#C0271D;padding:.2rem .5rem;border-radius:4px;font-size:.75rem;font-weight:700;">New</span>':'<span style="color:var(--muted);font-size:.78rem">Read</span>')+'</td><td><div class="actions"><button class="action-btn" onclick="viewMessage(''+m.id+'')" title="View">&#x1F441;&#xFE0F;</button><button class="action-btn delete" onclick="deleteItem('messages',''+m.id+'')" title="Delete">&#x1F5D1;&#xFE0F;</button></div></td></tr>';
+                }).join('');
+        } catch(err) { toast('Error loading messages: '+err.message,'error'); }
+    }
+
+    async function viewMessage(id) {
+        var snap = await db.collection('messages').doc(id).get();
+        if (!snap.exists) return;
+        var m = snap.data(), sentAt = m.sentAt?.toDate()||new Date();
+        if (!m.read) await db.collection('messages').doc(id).update({read:true});
+        alert('From: '+(m.name||'—')+' <'+(m.email||'—')+'>
+Subject: '+(m.subject||'—')+'
+Date: '+sentAt.toLocaleString()+'
+
+'+(m.message||'—'));
+        loadMessages(); loadDashboard();
+    }
+
+    // ── Subscribers ───────────────────────────────────────────────────────────
+    async function loadSubscribers() {
+        try {
+            var snap = await db.collection('subscribers').orderBy('subscribedAt','desc').get();
+            var subs = snap.docs.map(function(d){ return Object.assign({id:d.id},d.data(),{subscribedAt:d.data().subscribedAt?.toDate()||new Date()}); });
+            var tb = document.getElementById('subscribersTable');
+            if (!tb) return;
+            tb.innerHTML = subs.length===0
+                ? '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:2rem">No subscribers yet</td></tr>'
+                : subs.map(function(s){ return '<tr><td style="font-weight:500">'+s.email+'</td><td style="font-size:.85rem">'+(s.source||'—')+'</td><td style="font-size:.85rem">'+s.subscribedAt.toLocaleDateString()+'</td><td><div class="actions"><button class="action-btn delete" onclick="deleteItem('subscribers',''+s.id+'')" title="Remove">&#x1F5D1;&#xFE0F;</button></div></td></tr>'; }).join('');
+        } catch(err) { toast('Error loading subscribers: '+err.message,'error'); }
+    }
+
+    async function exportSubscribers() {
+        var snap = await db.collection('subscribers').orderBy('subscribedAt','desc').get();
+        var rows = ['Email,Source,Date'];
+        snap.docs.forEach(function(d){ var s=d.data(),dt=s.subscribedAt?.toDate()||new Date(); rows.push(s.email+','+(s.source||'')+','+dt.toISOString().split('T')[0]); });
+        var blob = new Blob([rows.join('
 ')],{type:'text/csv'});
-            const url=URL.createObjectURL(blob);
-            const a=Object.assign(document.createElement('a'),{href:url,download:`dmlek-subscribers-${new Date().toISOString().split('T')[0]}.csv`});
-            a.click(); URL.revokeObjectURL(url); toast('Exported!','success');
-        }
+        var url  = URL.createObjectURL(blob);
+        var a    = document.createElement('a');
+        a.href=url; a.download='dmlek-subscribers-'+new Date().toISOString().split('T')[0]+'.csv';
+        a.click(); URL.revokeObjectURL(url); toast('Exported!','success');
+    }
 
-        // ── Delete ───────────────────────────────────────────────────────────
-        async function deleteItem(col, id) {
-            if (!confirm('Delete this item?')) return;
+    // ── Delete ────────────────────────────────────────────────────────────────
+    async function deleteItem(col, id) {
+        if (!confirm('Delete this item?')) return;
+        try {
             await db.collection(col).doc(id).delete();
             toast('Deleted!','success'); loadDashboard();
-            if (currentPage==='articles')    loadArticles();
+            if      (currentPage==='articles')    loadArticles();
             else if (currentPage==='media')       loadMedia();
             else if (currentPage==='documents')   loadDocuments();
             else if (currentPage==='events')      loadEvents();
             else if (currentPage==='photos')      loadPhotos();
             else if (currentPage==='messages')    loadMessages();
             else if (currentPage==='subscribers') loadSubscribers();
+        } catch(err) { toast('Error: '+err.message,'error'); }
+    }
+
+    async function exportData() {
+        var data = {};
+        var cols = ['articles','media','documents','events','photos'];
+        for (var i=0; i<cols.length; i++) {
+            var snap = await db.collection(cols[i]).get();
+            data[cols[i]] = snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); });
         }
+        var blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+        var url  = URL.createObjectURL(blob);
+        var a    = document.createElement('a');
+        a.href=url; a.download='dmlek-backup-'+new Date().toISOString().split('T')[0]+'.json';
+        a.click(); URL.revokeObjectURL(url); toast('Exported!','success');
+    }
 
-        // ── Export / Import ──────────────────────────────────────────────────
-        async function exportData() {
-            const data={};
-            for (const col of ['articles','media','documents','events','photos']) {
-                const snap=await db.collection(col).get();
-                data[col]=snap.docs.map(d=>({id:d.id,...d.data()}));
-            }
-            const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-            const url=URL.createObjectURL(blob);
-            const a=Object.assign(document.createElement('a'),{href:url,download:`dmlek-backup-${new Date().toISOString().split('T')[0]}.json`});
-            a.click(); URL.revokeObjectURL(url); toast('Exported!','success');
-        }
+    // ── Modals ────────────────────────────────────────────────────────────────
+    function openModal(id)  { var el=document.getElementById(id); if(el) el.classList.add('active'); }
+    function closeModal(id) { var el=document.getElementById(id); if(el) el.classList.remove('active'); }
 
-        // ── Modal helpers ─────────────────────────────────────────────────────
-        function openModal(id)  { document.getElementById(id).classList.add('active'); }
-        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-        function execCmd(cmd,val=null){ document.execCommand(cmd,false,val); document.getElementById('articleContent').focus(); }
+    // ── Toast ─────────────────────────────────────────────────────────────────
+    function toast(msg, type) {
+        type = type || 'success';
+        var el = document.getElementById('toast');
+        var ti = document.getElementById('toastTitle');
+        var tm = document.getElementById('toastMessage');
+        if (!el) return;
+        if (ti) ti.textContent = type==='error' ? 'Error' : 'Success';
+        if (tm) tm.textContent = msg;
+        el.className = 'toast ' + type + ' show';
+        setTimeout(function(){ el.classList.remove('show'); }, 4000);
+    }
 
-        function showToast(msg,type) { toast(msg,type||'success'); }
-        function toast(msg,type='success') {
-            const el=document.getElementById('toast'),ti=document.getElementById('toastTitle'),tm=document.getElementById('toastMessage');
-            ti.textContent=type==='error'?'Error':'Success'; tm.textContent=msg;
-            el.className='toast '+type+' show'; setTimeout(()=>el.classList.remove('show'),3000);
-        }
-
-        // Mobile sidebar
-        document.getElementById('mobileSidebarToggle').addEventListener('click',()=>{ document.getElementById('sidebar').classList.toggle('active'); document.getElementById('sidebarOverlay').classList.toggle('active'); });
-        document.getElementById('sidebarOverlay').addEventListener('click',()=>{ document.getElementById('sidebar').classList.remove('active'); document.getElementById('sidebarOverlay').classList.remove('active'); });
-
-        // Close modals on Escape
-        document.addEventListener('keydown',e=>{ if(e.key==='Escape') document.querySelectorAll('.modal-overlay.active').forEach(m=>closeModal(m.id)); });
+    function showToast(msg, type) { toast(msg, type); }
     </script>
 </body>
 </html>

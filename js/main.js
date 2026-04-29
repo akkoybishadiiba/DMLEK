@@ -25,7 +25,9 @@ try {
 function tsToDate(val) {
     if (!val) return new Date();
     if (val instanceof Date) return val;
-    return new Date(typeof val === 'number' ? val : Number(val));
+    if (typeof val === 'object' && val.toDate) return val.toDate();
+    if (typeof val === 'number') return new Date(val);
+    return new Date();
 }
 
 // ========================================
