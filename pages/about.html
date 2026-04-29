@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="../images/dmlek-flag.png">
+    <link rel="apple-touch-icon" href="../images/dmlek-flag.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us | DMLEK</title>
+    <meta name="description" content="Learn about DMLEK - Democratic Movement for the Liberation of Eritrean Kunama">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="../css/main.css">
+    
+    <style>
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+        
+        .about-text h2 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .about-text h2 span {
+            color: var(--terracotta);
+        }
+        
+        .about-text p {
+            color: var(--text-secondary);
+            line-height: 1.9;
+            margin-bottom: 1.5rem;
+        }
+        
+        .about-image {
+            background: linear-gradient(135deg, var(--forest), var(--burgundy));
+            border-radius: 24px;
+            aspect-ratio: 4/3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+        
+        .value-card {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 10px 40px var(--shadow-color);
+        }
+        
+        .value-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--terracotta), var(--gold));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2rem;
+        }
+        
+        .value-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .value-card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+        
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+        }
+        
+        .contact-info h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: white;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .contact-item-icon {
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gold);
+            flex-shrink: 0;
+        }
+        
+        .contact-form {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2rem;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .contact-form h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: white;
+        }
+        
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: white;
+            font-size: 0.95rem;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--gold);
+        }
+        
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+        
+        textarea.form-input {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        @media (max-width: 1024px) {
+            .about-content,
+            .contact-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .values-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body data-page="about">
+    
+    <noscript>
+        <div style="position:fixed;inset:0;background:#111111;color:#F0E8E0;display:flex;align-items:center;justify-content:center;z-index:99999;padding:2rem;text-align:center;font-family:Georgia,serif;">
+            <div style="max-width:480px;">
+                <div style="font-size:2.5rem;font-weight:700;color:#EFC132;margin-bottom:1rem;">DMLEK</div>
+                <p style="font-size:1.1rem;line-height:1.7;margin-bottom:1.5rem;">This website requires JavaScript to display content. Please enable JavaScript in your browser settings to continue.</p>
+                <p style="font-size:0.95rem;color:rgba(240,232,224,0.6);line-height:1.7;">You can also reach us directly:<br>
+                <a href="mailto:akkoybishadiiba@gmail.com" style="color:#EFC132;">akkoybishadiiba@gmail.com</a><br>
+                <a href="https://mesel-biherat.com" style="color:#EFC132;">mesel-biherat.com</a></p>
+            </div>
+        </div>
+    </noscript>
+    <div class="reading-progress" id="readingProgress"></div>
+    <div class="pattern-bg"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="navbar-container">
+            <a href="../index.html" class="logo">
+                <div class="logo-icon">D</div>
+                <span class="logo-text">DMLEK</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="../index.html">Home</a></li>
+                <li><a href="./articles.html">Articles</a></li>
+                <li><a href="./media.html">Media</a></li>
+                <li><a href="./documents.html">Documents</a></li>
+                <li><a href="./events.html">Events</a></li>
+                <li><a href="./about.html" class="active">About</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="nav-btn" id="themeToggle" aria-label="Toggle theme">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="sun-icon">
+                        <circle cx="12" cy="12" r="5"/>
+                        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                    </svg>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="moon-icon" style="display:none;">
+                        <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+                    </svg>
+                </button>
+                <button class="nav-btn mobile-toggle" id="mobileToggle" aria-label="Menu">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 12h18M3 6h18M3 18h18"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <a href="../index.html" class="logo">
+                <div class="logo-icon">D</div>
+                <span class="logo-text" style="color: var(--text-primary)">DMLEK</span>
+            </a>
+            <button class="mobile-menu-close" id="mobileClose">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 6L6 18M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+        <ul class="mobile-nav-links">
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="./articles.html">Articles</a></li>
+            <li><a href="./media.html">Media</a></li>
+            <li><a href="./documents.html">Documents</a></li>
+            <li><a href="./events.html">Events</a></li>
+            <li><a href="./about.html" class="active">About</a></li>
+        </ul>
+    </div>
+
+    <!-- Page Header -->
+    <header class="page-header">
+        <div class="container">
+            <nav class="breadcrumb">
+                <a href="../index.html">Home</a>
+                <span>/</span>
+                <span class="current">About</span>
+            </nav>
+            <h1>About DMLEK</h1>
+            <p>Learn about our mission, history, and the people behind the movement.</p>
+        </div>
+    </header>
+
+    <!-- Our Mission -->
+    <section class="section">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text">
+                    <h2>Our <span>Mission</span></h2>
+                    <p>The Democratic Movement for the Liberation of Eritrean Kunama (DMLEK) is dedicated to advocating for the rights of the Kunama people and all marginalized nations and nationalities in Eritrea.</p>
+                    <p>Founded on April 1, 1995, we work tirelessly to preserve our cultural heritage, promote democratic values, and ensure the voice of our people is heard on the world stage. Through peaceful means, education, and international advocacy, we strive for a future where all Eritreans can live in freedom and dignity.</p>
+                    <p>Our organization operates across multiple continents, connecting the Kunama diaspora with their homeland and providing a platform for collective action and cultural preservation.</p>
+                </div>
+                <div class="about-image">
+                    <img src="../images/dmlek-flag.png" alt="DMLEK Flag" style="width:100%;max-width:350px;border-radius:12px;box-shadow:0 15px 50px rgba(0,0,0,.2)">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Our Values -->
+    <section class="section section-alt">
+        <div class="container">
+            <div class="section-header">
+                <h2>Our Core <span>Values</span></h2>
+                <p>The principles that guide our work and advocacy</p>
+            </div>
+            <div class="values-grid">
+                <div class="value-card">
+                    <div class="value-icon">🕊️</div>
+                    <h3>Peace</h3>
+                    <p>We believe in achieving our goals through peaceful means, dialogue, and international cooperation.</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">⚖️</div>
+                    <h3>Justice</h3>
+                    <p>We advocate for equal rights and fair treatment for all people, regardless of their background.</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">🗳️</div>
+                    <h3>Democracy</h3>
+                    <p>We support democratic governance and the right of all people to participate in decisions that affect their lives.</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">🎭</div>
+                    <h3>Culture</h3>
+                    <p>We are committed to preserving and promoting Kunama language, traditions, and cultural heritage.</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">🤝</div>
+                    <h3>Unity</h3>
+                    <p>We work together with allied organizations and communities who share our vision for a better future.</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">📢</div>
+                    <h3>Advocacy</h3>
+                    <p>We speak out against human rights abuses and work to raise international awareness of issues affecting our community.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- The Kunama People -->
+    <section class="section">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-image" style="order: -1;">
+                    <img src="../images/dmlek-flag.png" alt="Kunama Flag" style="width:100%;max-width:350px;border-radius:12px;box-shadow:0 15px 50px rgba(0,0,0,.2)">
+                </div>
+                <div class="about-text">
+                    <h2>The <span>Kunama</span> People</h2>
+                    <p>The Kunama are an ethnic group indigenous to the Gash-Barka region of Eritrea and the adjacent Tigray region of Ethiopia. With a population of approximately 100,000 people, the Kunama have a rich cultural heritage that spans thousands of years.</p>
+                    <p>The Kunama language belongs to the Nilo-Saharan language family and is distinct from the Semitic and Cushitic languages spoken by neighboring peoples. Our people have traditionally practiced agriculture and animal husbandry in the fertile lowlands of western Eritrea.</p>
+                    <p>Today, many Kunama live in diaspora communities around the world, maintaining their cultural traditions while working for the rights of those who remain in their homeland.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="section section-dark" id="contact">
+        <div class="container">
+            <div class="section-header">
+                <h2>Get in <span>Touch</span></h2>
+                <p>Connect with us and join our mission</p>
+            </div>
+            <div class="contact-grid">
+                <div class="contact-info">
+                    <h3>Contact Information</h3>
+                    <div class="contact-item">
+                        <div class="contact-item-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                <polyline points="22,6 12,13 2,6"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <strong style="display: block; color: white; margin-bottom: 0.25rem;">Email</strong>
+                            <a href="mailto:akkoybishadiiba@gmail.com" style="color: rgba(255,255,255,0.7);">akkoybishadiiba@gmail.com</a>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-item-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <strong style="display: block; color: white; margin-bottom: 0.25rem;">Website</strong>
+                            <a href="https://mesel-biherat.com" target="_blank" rel="noopener noreferrer" style="color: rgba(255,255,255,0.7);">www.mesel-biherat.com</a>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-item-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <strong style="display: block; color: white; margin-bottom: 0.25rem;">Facebook</strong>
+                            <a href="https://www.facebook.com/profile.php?id=61574500588449" target="_blank" rel="noopener noreferrer" style="color: rgba(255,255,255,0.7);">Follow us on Facebook</a>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-item-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+                                <circle cx="12" cy="10" r="3"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <strong style="display: block; color: white; margin-bottom: 0.25rem;">Location</strong>
+                            Diaspora communities worldwide
+                        </div>
+                    </div>
+                </div>
+                <div class="contact-form">
+                    <h3>Send us a Message</h3>
+                    <form id="contactForm">
+                        <div class="form-group">
+                            <label class="form-label">Your Name</label>
+                            <input type="text" class="form-input" placeholder="John Doe" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" class="form-input" placeholder="john@example.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Subject</label>
+                            <input type="text" class="form-input" placeholder="How can we help?" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Message</label>
+                            <textarea class="form-input" placeholder="Your message..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <h3>DMLEK</h3>
+                    <p>Democratic Movement for the Liberation of Eritrean Kunama. Advocating for justice, democracy, and the rights of all nations in Eritrea.</p>
+                    <div style="margin-top:1rem;font-size:.85rem;line-height:2">
+                        <div><a href="https://mesel-biherat.com" target="_blank" rel="noopener noreferrer" style="color:var(--gold)">&#127760; mesel-biherat.com</a></div>
+                        <div><a href="mailto:akkoybishadiiba@gmail.com" style="color:var(--gold)">&#9993; akkoybishadiiba@gmail.com</a></div>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="../index.html">Home</a></li>
+                        <li><a href="./articles.html">Articles</a></li>
+                        <li><a href="./media.html">Media</a></li>
+                        <li><a href="./about.html">About</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="./documents.html">Documents</a></li>
+                        <li><a href="./events.html">Events</a></li>
+                        
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Browse by Language</h4>
+                    <ul>
+                        <li><a href="./articles.html?lang=english">English Articles</a></li>
+                        <li><a href="./articles.html?lang=tigrinya">ትግርኛ (Tigrinya)</a></li>
+                        <li><a href="./articles.html?lang=arabic">العربية (Arabic)</a></li>
+                        <li><a href="./articles.html?lang=kunama">Kunama</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 1995 - <span id="copyrightYear">2026</span> DMLEK. All rights reserved.</p>
+                <div class="social-links">
+                    <a href="https://www.facebook.com/profile.php?id=61574500588449" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="Facebook"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <button class="back-to-top" id="backToTop" aria-label="Back to top">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 15l-6-6-6 6"/>
+        </svg>
+    </button>
+
+    <div class="toast" id="toast">
+        <svg class="toast-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/>
+        </svg>
+        <span id="toastMessage">Success</span>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="../js/main.js"></script>
+    
+    <script>
+        document.getElementById('contactForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = this.querySelector('button[type="submit"]');
+            const inputs = this.querySelectorAll('input, textarea');
+            const name    = this.querySelector('input[type="text"]').value.trim();
+            const email   = this.querySelector('input[type="email"]').value.trim().toLowerCase();
+            const subject = this.querySelectorAll('input[type="text"]')[1]?.value.trim() || '';
+            const message = this.querySelector('textarea').value.trim();
+            if (!name || !email || !message) return;
+            btn.disabled = true;
+            btn.textContent = 'Sending...';
+            try {
+                await db.collection('messages').add({
+                    name, email, subject, message,
+                    sentAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    read: false
+                });
+                showToast('Thank you! Your message has been received.', 'success');
+                this.reset();
+            } catch (err) {
+                console.error('Contact form error:', err);
+                showToast('Could not send message. Please email us directly.', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Send Message';
+            }
+        });
+    </script>
+</body>
+</html>

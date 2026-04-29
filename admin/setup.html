@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>First-Time Setup — DMLEK Admin</title>
+    <meta name="robots" content="noindex">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: #0D0D0D;
+            color: #F5F5F5;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+        .box {
+            background: #1A1A1A;
+            border: 1px solid #2A2A2A;
+            border-radius: 16px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.875rem;
+            margin-bottom: 2rem;
+        }
+        .logo-icon {
+            width: 48px; height: 48px;
+            background: linear-gradient(135deg, #C0271D, #EFC132);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 1.4rem; color: white;
+        }
+        .logo h1 { font-size: 1.3rem; color: white; }
+        .logo p  { font-size: 0.8rem; color: #888; margin-top: 1px; }
+        .step {
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 10px;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.88rem;
+            color: #999;
+            line-height: 1.7;
+        }
+        .step strong { color: #EFC132; display: block; margin-bottom: 0.4rem; font-size: 0.92rem; }
+        label { display: block; font-size: 0.82rem; color: #999; margin-bottom: 0.4rem; font-weight: 500; letter-spacing: 0.03em; text-transform: uppercase; }
+        input {
+            width: 100%;
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            color: #F5F5F5;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        input:focus { border-color: #C0271D; }
+        button {
+            width: 100%;
+            background: #C0271D;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.875rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 0.5rem;
+        }
+        button:hover:not(:disabled) { background: #961E16; }
+        button:disabled { background: #333; color: #666; cursor: not-allowed; }
+        .error { background: rgba(192,39,29,0.12); border: 1px solid rgba(192,39,29,0.3); border-radius: 8px; padding: 0.75rem 1rem; color: #F06058; font-size: 0.88rem; margin-bottom: 1rem; display: none; }
+        .success { background: rgba(92,171,110,0.12); border: 1px solid rgba(92,171,110,0.3); border-radius: 8px; padding: 1rem; color: #5CAB6E; font-size: 0.9rem; margin-top: 1rem; display: none; line-height: 1.6; }
+        .back { display: block; text-align: center; margin-top: 1.25rem; color: #888; font-size: 0.83rem; text-decoration: none; }
+        .back:hover { color: #EFC132; }
+        .warning {
+            background: rgba(239,193,50,0.08);
+            border: 1px solid rgba(239,193,50,0.25);
+            border-radius: 8px;
+            padding: 0.875rem 1rem;
+            color: #EFC132;
+            font-size: 0.83rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <div class="logo">
+            <div class="logo-icon">D</div>
+            <div><h1>DMLEK Admin</h1><p>First-Time Setup</p></div>
+        </div>
+
+        <div class="warning">
+            ⚠️ This page creates your admin account. Once an admin exists, this page becomes inactive. <strong>Delete this file after setup.</strong>
+        </div>
+
+        <div class="step">
+            <strong>What this does</strong>
+            Creates a Firebase Authentication account with your email and password, then registers your account as an admin so you can access the admin panel.
+        </div>
+
+        <div class="error" id="errorMsg"></div>
+
+        <div id="formSection">
+            <label for="email">Admin Email</label>
+            <input type="email" id="email" placeholder="you@example.com" autocomplete="email">
+
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="At least 8 characters" autocomplete="new-password">
+
+            <label for="confirmPassword">Confirm Password</label>
+            <input type="password" id="confirmPassword" placeholder="Repeat password" autocomplete="new-password">
+
+            <button id="setupBtn" onclick="runSetup()">Create Admin Account</button>
+        </div>
+
+        <div class="success" id="successMsg"></div>
+
+        <a href="./index.html" class="back">← Back to Admin Login</a>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script>
+        firebase.initializeApp({
+            apiKey: "AIzaSyCFUzAQucspGeL9e580ha0t9ajmibtZYVU",
+            authDomain: "dmlek-5e41d.firebaseapp.com",
+            projectId: "dmlek-5e41d",
+            storageBucket: "dmlek-5e41d.firebasestorage.app",
+            messagingSenderId: "776258229369",
+            appId: "1:776258229369:web:19b757e38f79156f91f0a8"
+        });
+
+        const auth = firebase.auth();
+        const db   = firebase.firestore();
+
+        // On load: check if any admin already exists — if so, disable the form
+        async function checkExistingAdmins() {
+            try {
+                const snap = await db.collection('admins').limit(1).get();
+                if (!snap.empty) {
+                    document.getElementById('formSection').innerHTML =
+                        '<p style="color:#888;text-align:center;padding:1rem;">An admin account already exists. This setup page is no longer needed.</p>';
+                    document.getElementById('setupBtn') && (document.getElementById('setupBtn').disabled = true);
+                }
+            } catch(e) {
+                // Firestore read may fail if not yet set up — allow form to proceed
+            }
+        }
+        checkExistingAdmins();
+
+        function showError(msg) {
+            const el = document.getElementById('errorMsg');
+            el.textContent = msg;
+            el.style.display = 'block';
+        }
+        function hideError() {
+            document.getElementById('errorMsg').style.display = 'none';
+        }
+
+        async function runSetup() {
+            hideError();
+            const email    = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const confirm  = document.getElementById('confirmPassword').value;
+            const btn      = document.getElementById('setupBtn');
+
+            if (!email)                        return showError('Please enter an email address.');
+            if (password.length < 8)           return showError('Password must be at least 8 characters.');
+            if (password !== confirm)          return showError('Passwords do not match.');
+
+            btn.disabled    = true;
+            btn.textContent = 'Creating account…';
+
+            try {
+                // 1. Create Firebase Auth account
+                const cred = await auth.createUserWithEmailAndPassword(email, password);
+                const uid  = cred.user.uid;
+
+                // 2. Write admin record to Firestore
+                await db.collection('admins').doc(uid).set({
+                    email: email,
+                    role: 'admin',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // 3. Sign out — user will log in via the normal admin page
+                await auth.signOut();
+
+                // 4. Show success
+                document.getElementById('formSection').style.display = 'none';
+                const success = document.getElementById('successMsg');
+                success.style.display = 'block';
+                success.innerHTML = `
+                    <strong style="display:block;margin-bottom:0.5rem;">✓ Admin account created</strong>
+                    Your account <strong>${email}</strong> is now registered as admin.<br><br>
+                    <strong>Next steps:</strong><br>
+                    1. Delete <code>admin/setup.html</code> from your project<br>
+                    2. <a href="./index.html" style="color:#5CAB6E;">Go to Admin Login →</a>
+                `;
+
+            } catch (err) {
+                btn.disabled    = false;
+                btn.textContent = 'Create Admin Account';
+
+                // Friendly error messages
+                const msgs = {
+                    'auth/email-already-in-use': 'This email is already registered. Go to the admin login and use Forgot Password if needed.',
+                    'auth/invalid-email':        'Please enter a valid email address.',
+                    'auth/weak-password':        'Password is too weak. Use at least 8 characters with mixed letters and numbers.',
+                    'auth/network-request-failed': 'Network error. Check your connection and try again.',
+                    'auth/operation-not-allowed': 'Email/password sign-in is not enabled. Go to Firebase Console → Authentication → Sign-in methods and enable Email/Password.'
+                };
+                showError(msgs[err.code] || err.message);
+            }
+        }
+
+        // Allow Enter key to submit
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Enter' && document.getElementById('formSection').style.display !== 'none') {
+                runSetup();
+            }
+        });
+    </script>
+</body>
+</html>

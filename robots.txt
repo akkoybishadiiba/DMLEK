@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /admin/seed.html
+Disallow: /admin/setup.html
+
+Sitemap: https://mesel-biherat.com/sitemap.xml

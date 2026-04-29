@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seed Data — DMLEK Admin</title>
+    <style>
+        body { font-family: system-ui, sans-serif; background: #0D0D0D; color: #F5F5F5; padding: 2rem; max-width: 700px; margin: 0 auto; }
+        h1 { color: #EFC132; font-size: 1.5rem; margin-bottom: 0.5rem; }
+        p  { color: #888; margin-bottom: 1.5rem; font-size: 0.95rem; line-height: 1.6; }
+        .card { background: #1A1A1A; border: 1px solid #333; border-radius: 10px; padding: 1.25rem; margin-bottom: 1rem; }
+        .card h3 { font-size: 1rem; margin-bottom: 0.25rem; }
+        .card small { color: #888; font-size: 0.8rem; }
+        button { background: #C0271D; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; margin-right: 0.5rem; margin-top: 1rem; }
+        button:hover { background: #961E16; }
+        button:disabled { background: #444; cursor: not-allowed; }
+        .log { background: #111; border: 1px solid #222; border-radius: 8px; padding: 1rem; margin-top: 1.5rem; font-family: monospace; font-size: 0.82rem; line-height: 1.8; min-height: 80px; max-height: 300px; overflow-y: auto; }
+        .ok  { color: #5CAB6E; }
+        .err { color: #E24B4A; }
+        .warn { color: #EFC132; }
+        .done { color: #EFC132; font-weight: bold; margin-top: 1rem; font-size: 1rem; }
+    </style>
+</head>
+<body>
+    <h1>🌱 DMLEK — Seed Starter Articles</h1>
+    <p>This page creates the 6 starter articles in your Firestore database so the public website has content immediately. Run this once. Once articles appear in the admin panel, delete this file from your project.</p>
+
+    <div id="articleList"></div>
+
+    <button id="seedBtn" onclick="runSeed()">Seed Articles into Firestore</button>
+    <button onclick="window.location.href='./index.html'">← Back to Admin</button>
+
+    <div class="log" id="log"><span class="warn">Ready. Press "Seed Articles" to begin.</span></div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script>
+        firebase.initializeApp({
+            apiKey: "AIzaSyCFUzAQucspGeL9e580ha0t9ajmibtZYVU",
+            authDomain: "dmlek-5e41d.firebaseapp.com",
+            projectId: "dmlek-5e41d",
+            storageBucket: "dmlek-5e41d.firebasestorage.app",
+            messagingSenderId: "776258229369",
+            appId: "1:776258229369:web:19b757e38f79156f91f0a8"
+        });
+        const db = firebase.firestore();
+
+        const ARTICLES = [
+            {
+                title: 'DMLEK Reaffirms Commitment to Kunama Rights at Regional Summit',
+                excerpt: 'Representatives of DMLEK participated in the Horn of Africa democratic movements summit, reiterating the call for inclusive governance and the protection of minority nationalities in Eritrea.',
+                content: '<p>Representatives of DMLEK participated in the Horn of Africa democratic movements summit, reiterating the call for inclusive governance and the protection of minority nationalities in Eritrea.</p><p>The summit brought together leaders from various Eritrean opposition movements to coordinate efforts toward a peaceful democratic transition. DMLEK delegates emphasised the importance of recognising the rights of all nationalities, including the Kunama people, in any future governance framework.</p><p>The delegation called on regional governments and the international community to increase pressure on the Eritrean government to respect human rights and engage in genuine dialogue with all political stakeholders.</p>',
+                language: 'english', status: 'published', featured: true,
+                createdAt: new Date('2025-01-15')
+            },
+            {
+                title: 'The Kunama People: History, Culture and the Struggle for Self-Determination',
+                excerpt: 'A comprehensive overview of the Kunama nationality — one of the oldest indigenous peoples of the Horn of Africa — and their ongoing struggle for recognition and rights within Eritrea.',
+                content: '<p>The Kunama are one of the oldest indigenous peoples of the Horn of Africa, with a history stretching back thousands of years in the Gash-Barka region of western Eritrea. Their unique culture, language, and traditions have survived centuries of external pressures.</p><p>The Kunama language belongs to the Nilo-Saharan family, making it linguistically distinct from the Semitic and Cushitic languages spoken by most other Eritrean nationalities. This distinctiveness has both enriched the cultural tapestry of the region and made the Kunama a minority in need of specific protections.</p><p>DMLEK was founded in 1995 to advocate for the political, cultural, and land rights of the Kunama people, who have faced systematic marginalisation under successive governments. The movement continues to call for constitutional recognition of Kunama rights and an end to forced displacement from ancestral lands.</p>',
+                language: 'english', status: 'published', featured: false,
+                createdAt: new Date('2024-12-20')
+            },
+            {
+                title: 'ኩናማ ህዝቢ ፍትሒ ይጠልብ — DMLEK ናይ ምክልኻል መደብ የቕርብ',
+                excerpt: 'ዲሞክራስያዊ ምንቅስቓስ ሓርነት ኩናማ ኤርትራ ንመሰል ፍትሒ ዝምልከት ሰፊሕ መደብ ኣቕሪቡ ኣሎ።',
+                content: '<p>ዲሞክራስያዊ ምንቅስቓስ ሓርነት ኩናማ ኤርትራ (DMLEK) ንህዝቢ ኩናማ ዝምልከት ሰፊሕ መደብ ኣቕሪቡ ኣሎ። እዚ መደብ ሕጋዊ መሰላት ህዝቢ ኩናማ ንምሕላው ዝዓለመ ኰይኑ፡ ኣብ ትምህርቲ፡ ፖለቲካዊ ውክልና፡ ምሕደራ መሬት ዝምልከቱ ጉዳያት የጠቓልል።</p><p>DMLEK ኣብ ዝሃቦ ጋዜጣዊ መግለጺ፡ ህዝቢ ኩናማ ካብ ዓሰርተታት ዓመታት ንደሓር ኣብ ትሕቲ ምልካዊ ሓይሊ ሃሊቑ ምምጽኡ ጠቒሱ፡ ንኤርትራ ኪዲሞክራስያዊ ምስ ትኸውን ዝኾነ ምስግጋር ናይ ስልጣን ን ሚዛናዊ ፍትሒ ንኹሎም ዜጋታት ዘረጋግጽ ክኸውን ጠልቢ ቀሪቡ ኣሎ።</p>',
+                language: 'tigrinya', status: 'published', featured: false,
+                createdAt: new Date('2024-11-10')
+            },
+            {
+                title: 'DMLEK and RSADO Issue Joint Statement on Democratic Transition',
+                excerpt: 'In a landmark joint communiqué, DMLEK and the Red Sea Afar Democratic Organization called on the international community to support a peaceful democratic transition in Eritrea.',
+                content: '<p>In a landmark joint statement, DMLEK and the Red Sea Afar Democratic Organization (RSADO) have called on the international community to take concrete steps in support of a peaceful democratic transition in Eritrea.</p><p>The joint communiqué, signed by the leadership of both organisations, emphasises the need for an inclusive political process that recognises the rights and representation of all Eritrean nationalities — including minority groups such as the Kunama and the Afar peoples.</p><p>The two organisations pledged to continue coordinating their advocacy efforts and to strengthen alliances with other democratic movements in the Eritrean opposition. They called on regional bodies, the African Union, and the United Nations to engage more actively with Eritrean civil society and opposition groups.</p>',
+                language: 'english', status: 'published', featured: false,
+                createdAt: new Date('2024-10-05')
+            },
+            {
+                title: 'بيان DMLEK حول أوضاع الكوناما في إريتريا',
+                excerpt: 'أصدرت الحركة الديمقراطية لتحرير كوناما إريتريا بياناً يطالب بضمان الحقوق الأساسية للشعب الكوناما، بما في ذلك الحق في التعليم والتمثيل السياسي.',
+                content: '<p>أصدرت الحركة الديمقراطية لتحرير كوناما إريتريا (DMLEK) بياناً رسمياً يطالب بضمان الحقوق الأساسية للشعب الكوناما في إريتريا، بما في ذلك الحق في التعليم باللغة الأم، والتمثيل السياسي العادل، وحقوق الأرض التاريخية.</p><p>وأشار البيان إلى أن شعب الكوناما يتعرض لضغوط متزايدة نتيجة سياسات التهجير القسري والتهميش المنهجي، مطالباً المجتمع الدولي بالتدخل لحماية هذه الأقلية الأصيلة.</p><p>كما دعت الحركة الأمم المتحدة ومنظمة الاتحاد الأفريقي إلى إجراء تحقيق مستقل في انتهاكات حقوق الإنسان التي تطال الكوناما وغيرهم من الأقليات في إريتريا.</p>',
+                language: 'arabic', status: 'published', featured: false,
+                createdAt: new Date('2024-09-18')
+            },
+            {
+                title: 'Preserving the Kunama Language: DMLEK Cultural Initiative',
+                excerpt: 'DMLEK launches a new initiative to document and preserve the Kunama language, partnering with linguists and community elders to create educational resources for the diaspora.',
+                content: '<p>DMLEK has launched a comprehensive cultural initiative aimed at documenting and preserving the Kunama language, one of the most linguistically unique languages in the Horn of Africa. The initiative involves partnerships with linguists, anthropologists, and community elders from the Kunama diaspora.</p><p>The project will produce written educational materials, audio recordings, and digital resources designed to help Kunama children and young adults in the diaspora connect with their linguistic heritage. A preliminary glossary and phrasebook have already been completed and will be made available through this website.</p><p>Language preservation is a cornerstone of cultural survival. For a people who have faced systematic marginalisation, maintaining the Kunama language is an act of resistance and resilience. DMLEK considers this initiative to be as important as its political advocacy work.</p>',
+                language: 'english', status: 'published', featured: false,
+                createdAt: new Date('2024-08-30')
+            }
+        ];
+
+        // Display preview
+        const list = document.getElementById('articleList');
+        ARTICLES.forEach((a, i) => {
+            list.innerHTML += `<div class="card"><h3>${a.title}</h3><small>${a.language} · ${a.createdAt.toDateString()}</small></div>`;
+        });
+
+        function log(msg, cls = '') {
+            const el = document.getElementById('log');
+            el.innerHTML += `<div class="${cls}">${msg}</div>`;
+            el.scrollTop = el.scrollHeight;
+        }
+
+        async function runSeed() {
+            const btn = document.getElementById('seedBtn');
+            btn.disabled = true;
+            btn.textContent = 'Seeding...';
+            document.getElementById('log').innerHTML = '';
+
+            log('Starting seed...', 'warn');
+
+            let seeded = 0, skipped = 0;
+
+            for (const article of ARTICLES) {
+                try {
+                    // Check if an article with this title already exists
+                    const existing = await db.collection('articles')
+                        .where('title', '==', article.title).limit(1).get();
+
+                    if (!existing.empty) {
+                        log(`⏭  Skipped (already exists): ${article.title.slice(0, 60)}`, 'warn');
+                        skipped++;
+                        continue;
+                    }
+
+                    await db.collection('articles').add({
+                        ...article,
+                        createdAt: firebase.firestore.Timestamp.fromDate(article.createdAt),
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    log(`✓  Seeded: ${article.title.slice(0, 60)}`, 'ok');
+                    seeded++;
+                } catch (err) {
+                    log(`✗  Error on "${article.title.slice(0, 40)}": ${err.message}`, 'err');
+                }
+            }
+
+            log('', '');
+            log(`Done — ${seeded} seeded, ${skipped} skipped.`, 'done');
+            btn.textContent = 'Done ✓';
+        }
+    </script>
+</body>
+</html>

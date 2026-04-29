@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DMLEK Admin Panel</title>
+    <link rel="icon" type="image/png" href="../images/dmlek-flag.png">
+    <link rel="apple-touch-icon" href="../images/dmlek-flag.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root{--primary:#C0271D;--primary-dark:#961E16;--success:#10B981;--warning:#F59E0B;--danger:#EF4444;--info:#3B82F6;--bg:#0F0F0F;--card:#1A1A1A;--hover:#242424;--input:#2A2A2A;--border:#333;--text:#F5F5F5;--muted:#888}
+        *{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+        .auth-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem}
+        .auth-box{background:var(--card);border-radius:16px;padding:2.5rem;width:100%;max-width:400px;border:1px solid var(--border)}
+        .auth-logo{text-align:center;margin-bottom:2rem}
+        .auth-logo-icon{width:60px;height:60px;background:linear-gradient(135deg,var(--primary),#EFC132);border-radius:14px;display:inline-flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:700;color:#fff;margin-bottom:1rem}
+        .auth-logo h1{font-size:1.25rem}.auth-logo p{color:var(--muted);font-size:.9rem}
+        .form-group{margin-bottom:1rem}.form-label{display:block;font-size:.85rem;margin-bottom:.4rem;color:var(--muted)}
+        .form-input,.form-select{width:100%;padding:.75rem 1rem;background:var(--input);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.9rem;outline:none}
+        .form-input:focus,.form-select:focus{border-color:var(--primary)}textarea.form-input{min-height:100px;resize:vertical;font-family:inherit}
+        .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}.form-check{display:flex;align-items:center;gap:.5rem;cursor:pointer}.form-check input{width:18px;height:18px;accent-color:var(--primary)}
+        .btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.75rem 1.25rem;border-radius:8px;font-size:.9rem;font-weight:600;cursor:pointer;border:none;transition:all .2s}
+        .btn-primary{background:var(--primary);color:#fff;width:100%}.btn-primary:hover{background:var(--primary-dark)}
+        .btn-secondary{background:var(--hover);color:var(--text);border:1px solid var(--border)}.btn-secondary:hover{border-color:var(--primary);color:var(--primary)}
+        .btn-danger{background:var(--danger);color:#fff}.btn-danger:hover{background:#DC2626}.btn-sm{padding:.5rem .75rem;font-size:.8rem}
+        
+        .divider{display:flex;align-items:center;margin:1.5rem 0;color:var(--muted);font-size:.8rem}
+        .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}.divider span{padding:0 1rem}
+        .error-msg{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#FCA5A5;padding:.75rem;border-radius:8px;font-size:.85rem;margin-bottom:1rem;display:none}
+        .app{display:none;min-height:100vh}.app.active{display:flex}
+        .sidebar{width:260px;background:var(--card);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;transition:transform .3s}
+        .sidebar-header{padding:1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.75rem}
+        .sidebar-logo{width:40px;height:40px;background:linear-gradient(135deg,var(--primary),#EFC132);border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:1.1rem}
+        .sidebar-title{font-weight:600;font-size:1rem}.sidebar-title span{display:block;font-size:.7rem;font-weight:400;color:var(--muted)}
+        .sidebar-nav{flex:1;padding:1rem;overflow-y:auto}.nav-section{margin-bottom:1.5rem}
+        .nav-section-title{font-size:.7rem;text-transform:uppercase;color:var(--muted);letter-spacing:1px;padding:0 .75rem;margin-bottom:.5rem}
+        .nav-item{display:flex;align-items:center;gap:.75rem;padding:.75rem;border-radius:8px;color:var(--muted);cursor:pointer;margin-bottom:.25rem;transition:all .2s;font-size:.9rem}
+        .nav-item:hover{background:var(--hover);color:var(--text)}.nav-item.active{background:rgba(192, 39, 29,.15);color:var(--primary)}
+        .nav-item svg{width:18px;height:18px;flex-shrink:0}.nav-badge{margin-left:auto;background:var(--primary);color:#fff;font-size:.7rem;padding:.15rem .5rem;border-radius:10px}
+        .sidebar-footer{padding:1rem;border-top:1px solid var(--border)}
+        .user-info{display:flex;align-items:center;gap:.75rem;padding:.75rem;background:var(--hover);border-radius:10px}
+        .user-avatar{width:36px;height:36px;background:var(--primary);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.9rem;flex-shrink:0}
+        .user-name{font-size:.85rem;font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .user-email{font-size:.7rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .logout-btn{background:none;border:none;color:var(--muted);cursor:pointer;padding:.5rem;border-radius:6px}.logout-btn:hover{color:var(--danger);background:rgba(239,68,68,.1)}
+        .mobile-sidebar-toggle{display:none;position:fixed;bottom:1.5rem;left:1.5rem;width:50px;height:50px;background:var(--primary);border:none;border-radius:12px;color:#fff;cursor:pointer;z-index:99;box-shadow:0 4px 20px rgba(192, 39, 29,.4)}
+        .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99}
+        .main{flex:1;margin-left:260px;display:flex;flex-direction:column;min-height:100vh}
+        .header{background:var(--card);border-bottom:1px solid var(--border);padding:1rem 1.5rem;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:50;gap:1rem;flex-wrap:wrap}
+        .page-title{font-size:1.25rem;font-weight:600}.header-actions{display:flex;gap:.5rem;flex-wrap:wrap}.content{padding:1.5rem;flex:1}
+        .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem}
+        .stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.25rem;transition:all .2s}.stat-card:hover{border-color:var(--primary)}
+        .stat-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:.75rem}
+        .stat-icon.articles{background:rgba(192, 39, 29,.15);color:var(--primary)}.stat-icon.media{background:rgba(59,130,246,.15);color:var(--info)}
+        .stat-icon.docs{background:rgba(16,185,129,.15);color:var(--success)}.stat-icon.events{background:rgba(245,158,11,.15);color:var(--warning)}
+        .stat-value{font-size:2rem;font-weight:700;margin-bottom:.25rem}.stat-label{color:var(--muted);font-size:.85rem}
+        .table-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+        .table-header{padding:1rem 1.25rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
+        .table-title{font-weight:600;font-size:1rem}.table-actions{display:flex;gap:.5rem;flex-wrap:wrap}
+        .search-input{padding:.5rem 1rem;background:var(--input);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.85rem;width:200px}
+        .search-input:focus{outline:none;border-color:var(--primary)}.filter-select{padding:.5rem .75rem;background:var(--input);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.85rem;cursor:pointer}
+        table{width:100%;border-collapse:collapse}th{text-align:left;padding:.75rem 1rem;font-size:.7rem;font-weight:600;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);background:var(--hover)}
+        td{padding:.75rem 1rem;border-bottom:1px solid var(--border);font-size:.9rem;vertical-align:middle}tr:hover td{background:var(--hover)}
+        .item-title{font-weight:500;margin-bottom:.15rem}.item-excerpt{font-size:.8rem;color:var(--muted);max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .checkbox-cell{width:40px}.checkbox-cell input{width:16px;height:16px;accent-color:var(--primary)}
+        .badge{display:inline-block;padding:.2rem .5rem;border-radius:4px;font-size:.7rem;font-weight:600;text-transform:uppercase}
+        .badge-english{background:#1E3A5F;color:#90CAF9}.badge-tigrinya{background:#1B4332;color:#81C784}.badge-arabic{background:#4A2C00;color:#FFB74D}.badge-kunama{background:#4A1942;color:#F48FB1}
+        .badge-published{background:rgba(16,185,129,.15);color:var(--success)}.badge-draft{background:rgba(245,158,11,.15);color:var(--warning)}
+        .badge-video{background:rgba(59,130,246,.15);color:var(--info)}.badge-audio{background:rgba(168,85,247,.15);color:#A855F7}
+        .actions{display:flex;gap:.25rem}.action-btn{width:32px;height:32px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+        .action-btn:hover{background:var(--hover);color:var(--text)}.action-btn.delete:hover{color:var(--danger);border-color:var(--danger)}
+        .bulk-actions{display:none;align-items:center;gap:1rem;padding:.75rem 1.25rem;background:rgba(192, 39, 29,.1);border-bottom:1px solid var(--border)}
+        .bulk-actions.active{display:flex}.bulk-count{font-size:.85rem;color:var(--primary);font-weight:600}
+        .page{display:none}.page.active{display:block}
+        .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;visibility:hidden;transition:all .3s}
+        .modal-overlay.active{opacity:1;visibility:visible}.modal{background:var(--card);border-radius:16px;width:100%;max-width:700px;max-height:90vh;overflow:hidden;transform:scale(.95);transition:transform .3s}
+        .modal-overlay.active .modal{transform:scale(1)}.modal-header{padding:1rem 1.25rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+        .modal-title{font-weight:600;font-size:1.1rem}.modal-close{width:36px;height:36px;border-radius:8px;border:none;background:var(--hover);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center}
+        .modal-close:hover{background:var(--danger);color:#fff}.modal-body{padding:1.25rem;max-height:calc(90vh - 140px);overflow-y:auto}
+        .modal-footer{padding:1rem 1.25rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+        .modal-footer-left{font-size:.8rem;color:var(--muted)}.modal-footer-right{display:flex;gap:.5rem}
+        .editor{border:1px solid var(--border);border-radius:8px;overflow:hidden}
+        .editor-toolbar{display:flex;gap:.25rem;padding:.5rem;background:var(--hover);border-bottom:1px solid var(--border);flex-wrap:wrap}
+        .editor-btn{width:32px;height:32px;border:none;background:none;color:var(--muted);border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.9rem}
+        .editor-btn:hover{background:var(--input);color:var(--text)}.editor-divider{width:1px;background:var(--border);margin:0 .25rem}
+        .editor-content{min-height:200px;padding:1rem;background:var(--input);outline:none;line-height:1.6}.editor-content:empty::before{content:attr(data-placeholder);color:var(--muted)}
+        .image-upload{border:2px dashed var(--border);border-radius:8px;padding:2rem;text-align:center;cursor:pointer;transition:all .2s}
+        .image-upload:hover{border-color:var(--primary);background:rgba(192, 39, 29,.05)}.image-upload.has-image{padding:0;border-style:solid}
+        .image-upload img{width:100%;height:200px;object-fit:cover;border-radius:6px}.image-upload-text{color:var(--muted);font-size:.9rem}
+        .toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--card);border:1px solid var(--border);padding:1rem 1.25rem;border-radius:12px;display:flex;align-items:center;gap:.75rem;transform:translateX(150%);transition:transform .3s;z-index:300;max-width:350px;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+        .toast.show{transform:translateX(0)}.toast.success{border-left:4px solid var(--success)}.toast.error{border-left:4px solid var(--danger)}
+        .chart-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.5rem}.chart-title{font-weight:600;margin-bottom:1rem}
+        .chart-container{height:200px;display:flex;align-items:flex-end;gap:.5rem}
+        .chart-bar{flex:1;background:linear-gradient(180deg,var(--primary),var(--primary-dark));border-radius:4px 4px 0 0;position:relative}
+        .chart-bar span{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);font-size:.7rem;color:var(--muted);padding-bottom:.25rem}
+        .chart-labels{display:flex;gap:.5rem;margin-top:.5rem}.chart-labels span{flex:1;text-align:center;font-size:.7rem;color:var(--muted)}
+        @media(max-width:1200px){.stats{grid-template-columns:repeat(2,1fr)}}
+        @media(max-width:1024px){.sidebar{transform:translateX(-100%)}.sidebar.active{transform:translateX(0)}.sidebar-overlay.active{display:block}.mobile-sidebar-toggle{display:flex;align-items:center;justify-content:center}.main{margin-left:0}}
+        @media(max-width:768px){.stats{grid-template-columns:1fr}.form-row{grid-template-columns:1fr}.search-input{width:100%}table{display:block;overflow-x:auto}}
+    </style>
+</head>
+<body>
+    <div class="auth-screen" id="authScreen">
+        <div class="auth-box">
+            <div class="auth-logo"><div class="auth-logo-icon">D</div><h1>DMLEK Admin</h1><p>Sign in to manage content</p></div>
+            <div class="error-msg" id="authError"></div>
+            <form id="loginForm">
+                <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="loginEmail" required placeholder="admin@example.com"></div>
+                <div class="form-group"><label class="form-label">Password</label><input type="password" class="form-input" id="loginPassword" required placeholder="••••••••"></div>
+                <button type="submit" class="btn btn-primary">Sign In</button>
+            </form>
+            <p style="text-align:center;margin-top:1.5rem;font-size:.8rem;color:var(--muted)"><a href="../index.html" style="color:var(--primary)">← Back to Website</a></p>
+        </div>
+    </div>
+
+    <div class="app" id="app">
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header"><div class="sidebar-logo">D</div><div class="sidebar-title">DMLEK<span>Admin Panel</span></div></div>
+            <nav class="sidebar-nav">
+                <div class="nav-section"><div class="nav-section-title">Main</div>
+                    <div class="nav-item active" data-page="dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>Dashboard</div>
+                </div>
+                <div class="nav-section"><div class="nav-section-title">Content</div>
+                    <div class="nav-item" data-page="articles"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>Articles<span class="nav-badge" id="navArticles">0</span></div>
+                    <div class="nav-item" data-page="media"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>Media<span class="nav-badge" id="navMedia">0</span></div>
+                    <div class="nav-item" data-page="documents"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>Documents<span class="nav-badge" id="navDocs">0</span></div>
+                    <div class="nav-item" data-page="photos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>Photos<span class="nav-badge" id="navPhotos">0</span></div>
+                    <div class="nav-item" data-page="events"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Events<span class="nav-badge" id="navEvents">0</span></div>
+                </div>
+                <div class="nav-section"><div class="nav-section-title">Inbox</div>
+                    <div class="nav-item" data-page="messages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>Messages<span class="nav-badge" id="navMessages">0</span></div>
+                    <div class="nav-item" data-page="subscribers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>Subscribers<span class="nav-badge" id="navSubscribers">0</span></div>
+                </div>
+                <div class="nav-section"><div class="nav-section-title">System</div>
+                    <div class="nav-item" data-page="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Settings</div>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">A</div>
+                    <div style="flex:1;min-width:0"><div class="user-name" id="userName">Admin</div><div class="user-email" id="userEmail">akkoybishadiiba@gmail.com</div></div>
+                    <button class="logout-btn" id="logoutBtn" title="Sign out"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main">
+            <header class="header">
+                <h1 class="page-title" id="pageTitle">Dashboard</h1>
+                <div class="header-actions"><button class="btn btn-primary btn-sm" id="addNewBtn">+ Add New</button></div>
+            </header>
+            
+            <div class="content">
+                <!-- Dashboard -->
+                <div class="page active" id="page-dashboard">
+                    <div class="stats">
+                        <div class="stat-card"><div class="stat-icon articles"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg></div><div class="stat-value" id="statArticles">0</div><div class="stat-label">Articles</div></div>
+                        <div class="stat-card"><div class="stat-icon media"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></div><div class="stat-value" id="statMedia">0</div><div class="stat-label">Media</div></div>
+                        <div class="stat-card"><div class="stat-icon docs"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg></div><div class="stat-value" id="statDocs">0</div><div class="stat-label">Documents</div></div>
+                        <div class="stat-card"><div class="stat-icon events"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/></svg></div><div class="stat-value" id="statEvents">0</div><div class="stat-label">Events</div></div>
+                        <div class="stat-card"><div class="stat-icon docs" style="background:rgba(139,92,246,.15);color:#8B5CF6"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div><div class="stat-value" id="statPhotos">0</div><div class="stat-label">Photos</div></div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:2fr 1fr;gap:1.5rem">
+                        <div class="chart-card"><div class="chart-title">Articles by Language</div><div class="chart-container" id="langChart"></div><div class="chart-labels" id="langLabels"></div></div>
+                        <div class="table-card"><div class="table-header"><h3 class="table-title">Quick Actions</h3></div><div style="padding:1rem"><button class="btn btn-secondary btn-sm" style="width:100%;margin-bottom:.5rem" onclick="openArticleModal()">+ New Article</button><button class="btn btn-secondary btn-sm" style="width:100%;margin-bottom:.5rem" onclick="openModal('mediaModal')">+ New Media</button><button class="btn btn-secondary btn-sm" style="width:100%;margin-bottom:.5rem" onclick="openModal('eventModal')">+ New Event</button><button class="btn btn-secondary btn-sm" style="width:100%;margin-bottom:.5rem" onclick="openModal('photoModal')">+ New Photo</button><button class="btn btn-secondary btn-sm" style="width:100%" onclick="exportData()">Export Data</button></div></div>
+                    </div>
+                    <div class="table-card" style="margin-top:1.5rem"><div class="table-header"><h3 class="table-title">Recent Articles</h3></div><table><thead><tr><th>Title</th><th>Language</th><th>Status</th><th>Date</th></tr></thead><tbody id="recentArticles"><tr><td colspan="4" style="text-align:center;color:var(--muted);padding:2rem">Loading...</td></tr></tbody></table></div>
+                </div>
+                
+                <!-- Articles -->
+                <div class="page" id="page-articles">
+                    <div class="table-card">
+                        <div class="table-header">
+                            <h3 class="table-title">All Articles</h3>
+                            <div class="table-actions">
+                                <input type="text" class="search-input" id="articleSearch" placeholder="Search...">
+                                <select class="filter-select" id="filterLang"><option value="">All Languages</option><option value="english">English</option><option value="tigrinya">Tigrinya</option><option value="arabic">Arabic</option><option value="kunama">Kunama</option></select>
+                                <select class="filter-select" id="filterStatus"><option value="">All Status</option><option value="published">Published</option><option value="draft">Draft</option></select>
+                            </div>
+                        </div>
+                        <div class="bulk-actions" id="bulkActions"><span class="bulk-count"><span id="selectedCount">0</span> selected</span><button class="btn btn-sm btn-secondary" onclick="bulkPublish()">Publish</button><button class="btn btn-sm btn-danger" onclick="bulkDelete()">Delete</button><button class="btn btn-sm btn-secondary" onclick="clearSelection()">Cancel</button></div>
+                        <table><thead><tr><th class="checkbox-cell"><input type="checkbox" id="selectAll" onchange="toggleSelectAll()"></th><th>Title</th><th>Language</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody id="articlesTable"><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:2rem">Loading...</td></tr></tbody></table>
+                    </div>
+                </div>
+                
+                <!-- Media -->
+                <div class="page" id="page-media">
+                    <div class="table-card"><div class="table-header"><h3 class="table-title">Media Library</h3></div><table><thead><tr><th>Title / YouTube URL</th><th>Language</th><th>Date</th><th>Actions</th></tr></thead><tbody id="mediaTable"><tr><td colspan="5" style="text-align:center;color:var(--muted);padding:2rem">Loading...</td></tr></tbody></table></div>
+                </div>
+                
+                <!-- Documents -->
+                <div class="page" id="page-documents">
+                    <div class="table-card">
+                        <div class="table-header">
+                            <h3 class="table-title">Documents</h3>
+                            <div class="table-actions">
+                                <select class="filter-select" id="filterDocLang">
+                                    <option value="">All Languages</option>
+                                    <option value="english">English</option>
+                                    <option value="tigrinya">Tigrinya</option>
+                                    <option value="arabic">Arabic</option>
+                                    <option value="kunama">Kunama</option>
+                                </select>
+                                <select class="filter-select" id="filterDocStatus">
+                                    <option value="">All Status</option>
+                                    <option value="published">Published</option>
+                                    <option value="draft">Draft</option>
+                                </select>
+                            </div>
+                        </div>
+                        <table><thead><tr><th>Title</th><th>Language</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+                        <tbody id="documentsTable"><tr><td colspan="5" style="text-align:center;color:var(--muted);padding:2rem">Loading...</td></tr></tbody></table>
+                    </div>
+                </div>
+                
+                <!-- Events -->
+                <div class="page" id="page-events">
+                    <div class="table-card"><div class="table-header"><h3 class="table-title">Events</h3></div><table><thead><tr><th>Event</th><th>Date</th><th>Location</th><th>Actions</th></tr></thead><tbody id="eventsTable"><tr><td colspan="4" style="text-align:center;color:var(--muted);padding:2rem">Loading...</td></tr></tbody></table></div>
+                </div>
+                
+                <!-- Photos -->
+                <div class="page" id="page-photos">
+                    <div class="table-card">
+                        <div class="table-header"><h3 class="table-title">Photo Gallery</h3></div>
+                        <div id="photosAdminGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem;padding:1.25rem;">
+                            <p style="color:var(--muted);grid-column:1/-1;text-align:center;padding:2rem;">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Messages -->
+                <div class="page" id="page-messages">
+                    <div class="table-card">
+                        <div class="table-header"><h3 class="table-title">Contact Messages</h3></div>
+                        <table><thead><tr><th>Name</th><th>Email</th><th>Subject</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+                        <tbody id="messagesTable"><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:2rem">Loading...</td></tr></tbody></table>
+                    </div>
+                </div>
+
+                <!-- Subscribers -->
+                <div class="page" id="page-subscribers">
+                    <div class="table-card">
+                        <div class="table-header">
+                            <h3 class="table-title">Newsletter Subscribers</h3>
+                            <div class="table-actions"><button class="btn btn-secondary btn-sm" onclick="exportSubscribers()">📥 Export CSV</button></div>
+                        </div>
+                        <table><thead><tr><th>Email</th><th>Source</th><th>Subscribed</th><th>Actions</th></tr></thead>
+                        <tbody id="subscribersTable"><tr><td colspan="4" style="text-align:center;color:var(--muted);padding:2rem">Loading...</td></tr></tbody></table>
+                    </div>
+                </div>
+
+                <!-- Settings -->
+                <div class="page" id="page-settings">
+                    <div class="table-card"><div class="table-header"><h3 class="table-title">Settings</h3></div><div style="padding:1.5rem"><div class="form-group"><label class="form-label">Site Name</label><input type="text" class="form-input" value="DMLEK"></div><div class="form-group"><label class="form-label">Description</label><textarea class="form-input">Democratic Movement for the Liberation of Eritrean Kunama</textarea></div><h4 style="margin:2rem 0 1rem">Data Management</h4><div style="display:flex;gap:1rem;flex-wrap:wrap"><button class="btn btn-secondary" onclick="exportData()">📥 Export All Data</button><button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">📤 Import Data</button><input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)"></div></div></div>
+                </div>
+            </div>
+        </main>
+        <button class="mobile-sidebar-toggle" id="mobileSidebarToggle"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg></button>
+    </div>
+
+    <!-- Article Modal -->
+    <div class="modal-overlay" id="articleModal">
+        <div class="modal">
+            <div class="modal-header"><h3 class="modal-title" id="articleModalTitle">Add Article</h3><button class="modal-close" onclick="closeModal('articleModal')">×</button></div>
+            <div class="modal-body">
+                <form id="articleForm"><input type="hidden" id="articleId">
+                    <div class="form-group"><label class="form-label">Featured Image</label><div class="image-upload" id="imageUpload" onclick="document.getElementById('imageInput').click()"><div class="image-upload-text" id="imageUploadText"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><div>Click to upload image</div></div></div><input type="file" id="imageInput" accept="image/*" style="display:none" onchange="handleImageUpload(event)"></div>
+                    <div class="form-row"><div class="form-group"><label class="form-label">Language</label><select class="form-select" id="articleLang"><option value="english">English</option><option value="tigrinya">Tigrinya</option><option value="arabic">Arabic</option><option value="kunama">Kunama</option></select></div><div class="form-group"><label class="form-label">Status</label><select class="form-select" id="articleStatus"><option value="draft">Draft</option><option value="published">Published</option></select></div></div>
+                    <div class="form-group"><label class="form-label">Title</label><input type="text" class="form-input" id="articleTitle" required placeholder="Article title..."></div>
+                    <div class="form-group"><label class="form-label">Excerpt</label><input type="text" class="form-input" id="articleExcerpt" placeholder="Brief description..."></div>
+                    <div class="form-group"><label class="form-label">Content</label><div class="editor"><div class="editor-toolbar"><button type="button" class="editor-btn" onclick="execCmd('bold')" title="Bold"><b>B</b></button><button type="button" class="editor-btn" onclick="execCmd('italic')" title="Italic"><i>I</i></button><button type="button" class="editor-btn" onclick="execCmd('underline')" title="Underline"><u>U</u></button><div class="editor-divider"></div><button type="button" class="editor-btn" onclick="execCmd('formatBlock','H2')">H2</button><button type="button" class="editor-btn" onclick="execCmd('formatBlock','H3')">H3</button><div class="editor-divider"></div><button type="button" class="editor-btn" onclick="execCmd('insertUnorderedList')">•</button><button type="button" class="editor-btn" onclick="execCmd('insertOrderedList')">1.</button><div class="editor-divider"></div><button type="button" class="editor-btn" onclick="insertLink()">🔗</button></div><div class="editor-content" id="articleContent" contenteditable="true" data-placeholder="Write your content..."></div></div></div>
+                    <div class="form-group"><label class="form-check"><input type="checkbox" id="articleFeatured"> Featured article</label></div>
+                </form>
+            </div>
+            <div class="modal-footer"><div class="modal-footer-left" id="autoSaveStatus"></div><div class="modal-footer-right"><button class="btn btn-secondary" onclick="closeModal('articleModal')">Cancel</button><button class="btn btn-primary" onclick="saveArticle()">Save</button></div></div>
+        </div>
+    </div>
+    
+    <!-- Media Modal -->
+    <div class="modal-overlay" id="mediaModal">
+        <div class="modal">
+            <div class="modal-header"><h3 class="modal-title">Add YouTube Video</h3><button class="modal-close" onclick="closeModal('mediaModal')">×</button></div>
+            <div class="modal-body">
+                <form id="mediaForm"><input type="hidden" id="mediaId">
+                    <div class="form-group"><label class="form-label">Language</label><select class="form-select" id="mediaLang"><option value="english">English</option><option value="tigrinya">Tigrinya</option><option value="arabic">Arabic</option><option value="kunama">Kunama</option></select></div>
+                    <div class="form-group"><label class="form-label">Title</label><input type="text" class="form-input" id="mediaTitle" required></div>
+                    <div class="form-group"><label class="form-label">YouTube URL</label><input type="text" class="form-input" id="mediaUrl" placeholder="https://www.youtube.com/watch?v=..."></div>
+                    <div class="form-group"><label class="form-label">Duration</label><input type="text" class="form-input" id="mediaDuration" placeholder="e.g. 15:30"></div>
+                    <div class="form-group"><label class="form-label">Description</label><textarea class="form-input" id="mediaDesc"></textarea></div>
+                </form>
+            </div>
+            <div class="modal-footer"><div></div><div class="modal-footer-right"><button class="btn btn-secondary" onclick="closeModal('mediaModal')">Cancel</button><button class="btn btn-primary" onclick="saveMedia()">Save</button></div></div>
+        </div>
+    </div>
+    
+    <!-- Event Modal -->
+    <div class="modal-overlay" id="eventModal">
+        <div class="modal">
+            <div class="modal-header"><h3 class="modal-title">Add Event</h3><button class="modal-close" onclick="closeModal('eventModal')">×</button></div>
+            <div class="modal-body">
+                <form id="eventForm"><input type="hidden" id="eventId">
+                    <div class="form-group"><label class="form-label">Title</label><input type="text" class="form-input" id="eventTitle" required></div>
+                    <div class="form-row"><div class="form-group"><label class="form-label">Date</label><input type="date" class="form-input" id="eventDate" required></div><div class="form-group"><label class="form-label">Location</label><input type="text" class="form-input" id="eventLocation"></div></div>
+                    <div class="form-group"><label class="form-label">Description</label><textarea class="form-input" id="eventDesc"></textarea></div>
+                </form>
+            </div>
+            <div class="modal-footer"><div></div><div class="modal-footer-right"><button class="btn btn-secondary" onclick="closeModal('eventModal')">Cancel</button><button class="btn btn-primary" onclick="saveEvent()">Save</button></div></div>
+        </div>
+    </div>
+    
+    <!-- Document Modal — article-style editor -->
+    <div class="modal-overlay" id="documentModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="documentModalTitle">Add Document</h3>
+                <button class="modal-close" onclick="closeModal('documentModal')">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="documentForm"><input type="hidden" id="docId">
+                    <div class="form-group">
+                        <label class="form-label">Featured Image</label>
+                        <div class="image-upload" id="docImageUpload" onclick="document.getElementById('docImageInput').click()">
+                            <div class="image-upload-text" id="docImageUploadText">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                                <div>Click to upload image</div>
+                            </div>
+                        </div>
+                        <input type="file" id="docImageInput" accept="image/*" style="display:none" onchange="handleDocImageUpload(event)">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Language</label>
+                            <select class="form-select" id="docLang">
+                                <option value="english">English</option>
+                                <option value="tigrinya">Tigrinya</option>
+                                <option value="arabic">Arabic</option>
+                                <option value="kunama">Kunama</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" id="docStatus">
+                                <option value="draft">Draft</option>
+                                <option value="published">Published</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Title</label>
+                        <input type="text" class="form-input" id="docTitle" required placeholder="Document title...">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Excerpt / Summary</label>
+                        <input type="text" class="form-input" id="docExcerpt" placeholder="Brief description of this document...">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Content</label>
+                        <div class="editor">
+                            <div class="editor-toolbar">
+                                <button type="button" class="editor-btn" onclick="execDocCmd('bold')" title="Bold"><b>B</b></button>
+                                <button type="button" class="editor-btn" onclick="execDocCmd('italic')" title="Italic"><i>I</i></button>
+                                <button type="button" class="editor-btn" onclick="execDocCmd('underline')" title="Underline"><u>U</u></button>
+                                <div class="editor-divider"></div>
+                                <button type="button" class="editor-btn" onclick="execDocCmd('insertUnorderedList')" title="Bullet list">• List</button>
+                                <button type="button" class="editor-btn" onclick="execDocCmd('insertOrderedList')" title="Numbered list">1. List</button>
+                            </div>
+                            <div class="editor-content" id="docContent" contenteditable="true" data-placeholder="Write document content here..."></div>
+                        </div>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" id="docFeatured">
+                        <label class="form-label" for="docFeatured">Mark as featured</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <div class="modal-footer-left" id="docAutoSaveStatus"></div>
+                <div class="modal-footer-right">
+                    <button class="btn btn-secondary" onclick="closeModal('documentModal')">Cancel</button>
+                    <button class="btn btn-primary" onclick="saveDocument()">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Photo Modal -->
+    <div class="modal-overlay" id="photoModal">
+        <div class="modal">
+            <div class="modal-header"><h3 class="modal-title" id="photoModalTitle">Add Photo</h3><button class="modal-close" onclick="closeModal('photoModal')">×</button></div>
+            <div class="modal-body">
+                <form id="photoForm"><input type="hidden" id="photoId">
+                    <div class="form-group">
+                        <label class="form-label">Photo</label>
+                        <div class="image-upload" id="photoImageUpload" onclick="document.getElementById('photoImageInput').click()">
+                            <div class="image-upload-text" id="photoImageText">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                                <div>Click to upload photo</div>
+                            </div>
+                        </div>
+                        <input type="file" id="photoImageInput" accept="image/*" style="display:none" onchange="handlePhotoUpload(event)">
+                    </div>
+                    <div class="form-group"><label class="form-label">Title</label><input type="text" class="form-input" id="photoTitle" placeholder="Photo title..."></div>
+                    <div class="form-group"><label class="form-label">Caption</label><input type="text" class="form-input" id="photoCaption" placeholder="Optional caption..."></div>
+                </form>
+            </div>
+            <div class="modal-footer"><div></div><div class="modal-footer-right"><button class="btn btn-secondary" onclick="closeModal('photoModal')">Cancel</button><button class="btn btn-primary" onclick="savePhoto()">Save</button></div></div>
+        </div>
+    </div>
+
+        <div class="toast" id="toast"><div id="toastIcon">✓</div><div><div id="toastTitle">Success</div><div id="toastMessage" style="font-size:.8rem;color:var(--muted)"></div></div></div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script>
+        const firebaseConfig={apiKey:"AIzaSyCFUzAQucspGeL9e580ha0t9ajmibtZYVU",authDomain:"dmlek-5e41d.firebaseapp.com",projectId:"dmlek-5e41d",storageBucket:"dmlek-5e41d.firebasestorage.app",messagingSenderId:"776258229369",appId:"1:776258229369:web:19b757e38f79156f91f0a8"};
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db   = firebase.firestore();
+        const TS   = firebase.firestore.FieldValue.serverTimestamp;
+
+        let currentPage='dashboard', selectedItems=new Set(), autoSaveTimer=null,
+            currentImageUrl=null, currentDocImageUrl=null, currentPhotoImageUrl=null;
+
+        // ── Auth ─────────────────────────────────────────────────────────────
+        auth.onAuthStateChanged(async user => {
+            if (user) {
+                try {
+                    // Check if this user is already an admin
+                    const adminSnap = await db.collection('admins').doc(user.uid).get();
+                    if (adminSnap.exists) {
+                        showApp(user);
+                        return;
+                    }
+
+                    // No record for this user — check if ANY admin exists yet
+                    const anyAdmin = await db.collection('admins').limit(1).get();
+                    if (anyAdmin.empty) {
+                        // First ever login — register this user as the first admin
+                        await db.collection('admins').doc(user.uid).set({
+                            email: user.email,
+                            role: 'admin',
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        showApp(user);
+                        return;
+                    }
+
+                    // Admins exist but this user is not one of them
+                    await auth.signOut();
+                    showAuth();
+                    showAuthError('Access denied. This account is not registered as an admin. Use setup.html to register your account, or contact an existing admin.');
+                } catch(err) {
+                    await auth.signOut();
+                    showAuth();
+                    showAuthError('Error: ' + err.message + ' — Make sure Firestore is enabled in your Firebase project.');
+                }
+            } else { showAuth(); }
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', async e => {
+            e.preventDefault();
+            try { await auth.signInWithEmailAndPassword(document.getElementById('loginEmail').value, document.getElementById('loginPassword').value); }
+            catch(err) { showAuthError(err.message); }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => auth.signOut());
+
+        function showAuthError(msg) { const e=document.getElementById('authError'); e.textContent=msg; e.style.display='block'; }
+        function showAuth()   { document.getElementById('authScreen').style.display='flex'; document.getElementById('app').classList.remove('active'); }
+        function showApp(u)   { document.getElementById('authScreen').style.display='none'; document.getElementById('app').classList.add('active'); document.getElementById('userName').textContent=u.displayName||u.email.split('@')[0]; document.getElementById('userEmail').textContent=u.email; document.getElementById('userAvatar').textContent=(u.displayName||u.email)[0].toUpperCase(); loadDashboard(); }
+
+        // ── Navigation ───────────────────────────────────────────────────────
+        document.querySelectorAll('.nav-item').forEach(item => item.addEventListener('click', () => navigateTo(item.dataset.page)));
+
+        function navigateTo(page) {
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            const ni = document.querySelector(`.nav-item[data-page="${page}"]`);
+            if (ni) ni.classList.add('active');
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            const pe = document.getElementById('page-'+page);
+            if (pe) pe.classList.add('active');
+            document.getElementById('pageTitle').textContent = page.charAt(0).toUpperCase()+page.slice(1);
+            currentPage = page; clearSelection();
+            if (page==='dashboard')   loadDashboard();
+            else if (page==='articles')    loadArticles();
+            else if (page==='media')       loadMedia();
+            else if (page==='documents')   loadDocuments();
+            else if (page==='events')      loadEvents();
+            else if (page==='photos')      loadPhotos();
+            else if (page==='messages')    loadMessages();
+            else if (page==='subscribers') loadSubscribers();
+            document.getElementById('sidebar').classList.remove('active');
+            document.getElementById('sidebarOverlay').classList.remove('active');
+        }
+
+        document.getElementById('addNewBtn').addEventListener('click', () => {
+            if (currentPage==='articles'||currentPage==='dashboard') openArticleModal();
+            else if (currentPage==='media')       openModal('mediaModal');
+            else if (currentPage==='documents')   openDocumentModal();
+            else if (currentPage==='events')      openModal('eventModal');
+            else if (currentPage==='photos')      openPhotoModal();
+        });
+
+        // ── Dashboard ────────────────────────────────────────────────────────
+        async function loadDashboard() {
+            try {
+                const [artSnap,medSnap,docSnap,evtSnap,phSnap,msgSnap,subSnap] = await Promise.all([
+                    db.collection('articles').get(), db.collection('media').get(),
+                    db.collection('documents').get(), db.collection('events').get(),
+                    db.collection('photos').get(), db.collection('messages').get(),
+                    db.collection('subscribers').get()
+                ]);
+                const aC=artSnap.size, mC=medSnap.size, dC=docSnap.size, eC=evtSnap.size,
+                      pC=phSnap.size, msgC=msgSnap.size, sC=subSnap.size;
+                const unread = msgSnap.docs.filter(d=>!d.data().read).length;
+
+                document.getElementById('statArticles').textContent = aC;
+                document.getElementById('statMedia').textContent    = mC;
+                document.getElementById('statDocs').textContent     = dC;
+                document.getElementById('statEvents').textContent   = eC;
+                document.getElementById('statPhotos').textContent   = pC;
+                document.getElementById('navArticles').textContent  = aC;
+                document.getElementById('navMedia').textContent     = mC;
+                document.getElementById('navDocs').textContent      = dC;
+                document.getElementById('navEvents').textContent    = eC;
+                document.getElementById('navPhotos').textContent    = pC;
+                document.getElementById('navMessages').textContent  = unread > 0 ? unread : msgC;
+                document.getElementById('navSubscribers').textContent = sC;
+
+                const lc = {english:0,tigrinya:0,arabic:0,kunama:0};
+                artSnap.docs.forEach(d => { const l=d.data().language; if(lc[l]!==undefined) lc[l]++; });
+                const mx = Math.max(...Object.values(lc),1);
+                document.getElementById('langChart').innerHTML  = Object.entries(lc).map(([l,n])=>`<div class="chart-bar" style="height:${(n/mx)*100}%"><span>${n}</span></div>`).join('');
+                document.getElementById('langLabels').innerHTML = Object.keys(lc).map(l=>`<span>${l.charAt(0).toUpperCase()+l.slice(1)}</span>`).join('');
+
+                const recent = artSnap.docs.map(d=>({id:d.id,...d.data(),createdAt:d.data().createdAt?.toDate()||new Date()}))
+                    .sort((a,b)=>b.createdAt-a.createdAt).slice(0,5);
+                document.getElementById('recentArticles').innerHTML = recent.length===0
+                    ? '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:2rem">No articles yet</td></tr>'
+                    : recent.map(d=>`<tr><td><div class="item-title">${d.title}</div></td><td><span class="badge badge-${d.language}">${d.language}</span></td><td><span class="badge badge-${d.status}">${d.status}</span></td><td>${d.createdAt.toLocaleDateString()}</td></tr>`).join('');
+            } catch(err) { console.error('Dashboard error:',err); toast('Error loading dashboard','error'); }
+        }
+
+        // ── Articles ─────────────────────────────────────────────────────────
+        async function loadArticles() {
+            const lang=document.getElementById('filterLang').value, status=document.getElementById('filterStatus').value, search=document.getElementById('articleSearch').value.toLowerCase();
+            try {
+                const snap = await db.collection('articles').orderBy('createdAt','desc').get();
+                let docs = snap.docs.map(d=>({id:d.id,...d.data(),createdAt:d.data().createdAt?.toDate()||new Date()}));
+                if (lang)   docs = docs.filter(a=>a.language===lang);
+                if (status) docs = docs.filter(a=>a.status===status);
+                if (search) docs = docs.filter(a=>(a.title||'').toLowerCase().includes(search));
+                document.getElementById('articlesTable').innerHTML = docs.length===0
+                    ? '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:2rem">No articles found</td></tr>'
+                    : docs.map(a=>`<tr><td class="checkbox-cell"><input type="checkbox" data-id="${a.id}" onchange="updateSelection(this)"></td><td><div class="item-title">${a.title}</div><div class="item-excerpt">${a.excerpt||''}</div></td><td><span class="badge badge-${a.language}">${a.language}</span></td><td><span class="badge badge-${a.status}">${a.status}</span></td><td>${a.createdAt.toLocaleDateString()}</td><td><div class="actions"><button class="action-btn" onclick="editArticle('${a.id}')" title="Edit">✏️</button><button class="action-btn" onclick="window.open('../pages/article.html?id=${a.id}','_blank')" title="View">👁️</button><button class="action-btn delete" onclick="deleteItem('articles','${a.id}')" title="Delete">🗑️</button></div></td></tr>`).join('');
+            } catch(err) { toast('Error loading articles','error'); }
+        }
+
+        document.getElementById('filterLang').addEventListener('change', loadArticles);
+        document.getElementById('filterStatus').addEventListener('change', loadArticles);
+        document.getElementById('articleSearch').addEventListener('input', () => setTimeout(loadArticles, 300));
+
+        function openArticleModal() {
+            document.getElementById('articleId').value='';
+            document.getElementById('articleModalTitle').textContent='Add Article';
+            document.getElementById('articleForm').reset();
+            document.getElementById('articleContent').innerHTML='';
+            document.getElementById('imageUpload').classList.remove('has-image');
+            document.getElementById('imageUploadText').innerHTML='<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><div>Click to upload image</div>';
+            currentImageUrl=null; openModal('articleModal'); setupAutoSave();
+        }
+
+        async function editArticle(id) {
+            try {
+                const snap = await db.collection('articles').doc(id).get();
+                if (!snap.exists) return;
+                const d = snap.data();
+                document.getElementById('articleId').value=id;
+                document.getElementById('articleLang').value=d.language||'english';
+                document.getElementById('articleStatus').value=d.status||'draft';
+                document.getElementById('articleTitle').value=d.title||'';
+                document.getElementById('articleExcerpt').value=d.excerpt||'';
+                document.getElementById('articleContent').innerHTML=d.content||'';
+                document.getElementById('articleFeatured').checked=d.featured||false;
+                document.getElementById('articleModalTitle').textContent='Edit Article';
+                currentImageUrl=d.image||null;
+                if (d.image) { document.getElementById('imageUpload').classList.add('has-image'); document.getElementById('imageUploadText').innerHTML=`<img src="${d.image}" alt="Featured">`; }
+                openModal('articleModal'); setupAutoSave();
+            } catch(err) { toast('Error loading article','error'); }
+        }
+
+        async function saveArticle() {
+            const id = document.getElementById('articleId').value;
+            const data = { language:document.getElementById('articleLang').value, status:document.getElementById('articleStatus').value, title:document.getElementById('articleTitle').value, excerpt:document.getElementById('articleExcerpt').value, content:document.getElementById('articleContent').innerHTML, featured:document.getElementById('articleFeatured').checked, image:currentImageUrl||null, updatedAt:TS() };
+            if (!data.title) { toast('Title required','error'); return; }
+            try {
+                if (id) await db.collection('articles').doc(id).update(data);
+                else { data.createdAt=TS(); await db.collection('articles').add(data); }
+                closeModal('articleModal'); toast('Saved!','success'); loadArticles(); loadDashboard();
+            } catch(err) { toast('Error: '+err.message,'error'); }
+        }
+
+        function setupAutoSave() {
+            if (autoSaveTimer) clearInterval(autoSaveTimer);
+            autoSaveTimer = setInterval(() => {
+                const t=document.getElementById('articleTitle').value, ct=document.getElementById('articleContent').innerHTML;
+                if (t||ct) { localStorage.setItem('article_draft',JSON.stringify({t,ct,time:Date.now()})); document.getElementById('autoSaveStatus').textContent='Auto-saved'; setTimeout(()=>document.getElementById('autoSaveStatus').textContent='',2000); }
+            }, 30000);
+        }
+
+        function handleImageUpload(e) {
+            const file=e.target.files[0]; if(!file) return;
+            const reader=new FileReader();
+            reader.onload=ev=>{ document.getElementById('imageUpload').classList.add('has-image'); document.getElementById('imageUploadText').innerHTML=`<img src="${ev.target.result}" alt="Preview">`; currentImageUrl=ev.target.result; };
+            reader.readAsDataURL(file);
+        }
+
+        function updateSelection(cb) { if(cb.checked) selectedItems.add(cb.dataset.id); else selectedItems.delete(cb.dataset.id); updateBulkActions(); }
+        function updateBulkActions() { const n=selectedItems.size; document.getElementById('bulkActions').classList.toggle('active',n>0); document.getElementById('selectedCount').textContent=n; }
+        function toggleSelectAll() { const chk=document.getElementById('selectAll').checked; document.querySelectorAll('#articlesTable input[type="checkbox"]').forEach(cb=>{cb.checked=chk; if(chk) selectedItems.add(cb.dataset.id); else selectedItems.delete(cb.dataset.id)}); updateBulkActions(); }
+        function clearSelection() { selectedItems.clear(); document.querySelectorAll('input[type="checkbox"]').forEach(cb=>cb.checked=false); updateBulkActions(); }
+
+        async function bulkDelete() {
+            if (!confirm(`Delete ${selectedItems.size} items?`)) return;
+            const batch = db.batch();
+            selectedItems.forEach(id => batch.delete(db.collection('articles').doc(id)));
+            await batch.commit();
+            toast('Deleted!','success'); clearSelection(); loadArticles(); loadDashboard();
+        }
+        async function bulkPublish() {
+            const batch = db.batch();
+            selectedItems.forEach(id => batch.update(db.collection('articles').doc(id), {status:'published',updatedAt:TS()}));
+            await batch.commit();
+            toast('Published!','success'); clearSelection(); loadArticles();
+        }
+
+        // ── Media ────────────────────────────────────────────────────────────
+        async function loadMedia() {
+            try {
+                const snap = await db.collection('media').orderBy('createdAt','desc').get();
+                const items = snap.docs.map(d=>({id:d.id,...d.data(),createdAt:d.data().createdAt?.toDate()||new Date()}));
+                document.getElementById('mediaTable').innerHTML = items.length===0
+                    ? '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:2rem">No videos</td></tr>'
+                    : items.map(m=>`<tr><td><div class="item-title">${m.title}</div><div class="item-excerpt">${m.youtubeUrl||m.url||''}</div></td><td><span class="badge badge-${m.language}">${m.language}</span></td><td>${m.createdAt.toLocaleDateString()}</td><td><div class="actions"><button class="action-btn delete" onclick="deleteItem('media','${m.id}')">🗑️</button></div></td></tr>`).join('');
+            } catch(err) { toast('Error loading media','error'); }
+        }
+
+        async function saveMedia() {
+            const id=document.getElementById('mediaId').value;
+            const ytUrl=document.getElementById('mediaUrl').value.trim();
+            const data={type:'video',language:document.getElementById('mediaLang').value,title:document.getElementById('mediaTitle').value,youtubeUrl:ytUrl,url:ytUrl,duration:document.getElementById('mediaDuration').value||'',description:document.getElementById('mediaDesc').value||'',updatedAt:TS()};
+            if (!data.title) { toast('Title required','error'); return; }
+            if (!ytUrl||!ytUrl.includes('youtube')) { toast('Please enter a valid YouTube URL','error'); return; }
+            try {
+                if (id) await db.collection('media').doc(id).update(data);
+                else { data.createdAt=TS(); await db.collection('media').add(data); }
+                closeModal('mediaModal'); toast('Saved!','success'); loadMedia(); loadDashboard();
+            } catch(err) { toast('Error','error'); }
+        }
+
+        // ── Documents ────────────────────────────────────────────────────────
+        async function loadDocuments() {
+            const langF=document.getElementById('filterDocLang')?.value||'', statusF=document.getElementById('filterDocStatus')?.value||'';
+            try {
+                const snap = await db.collection('documents').orderBy('createdAt','desc').get();
+                let docs = snap.docs.map(d=>({id:d.id,...d.data(),createdAt:d.data().createdAt?.toDate()||new Date()}));
+                if (langF)   docs=docs.filter(d=>d.language===langF);
+                if (statusF) docs=docs.filter(d=>d.status===statusF);
+                document.getElementById('documentsTable').innerHTML = docs.length===0
+                    ? '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:2rem">No documents</td></tr>'
+                    : docs.map(d=>{const sc=d.status==='published'?'badge-published':'badge-draft'; return`<tr><td><div class="item-title">${d.title}</div><div class="item-excerpt">${d.excerpt||''}</div></td><td><span class="badge badge-${d.language||'english'}">${d.language||'english'}</span></td><td><span class="badge ${sc}">${d.status||'draft'}</span></td><td>${d.createdAt.toLocaleDateString()}</td><td><div class="actions"><button class="action-btn" onclick="editDocument('${d.id}')">✏️</button><button class="action-btn" onclick="window.open('../pages/document.html?id=${d.id}','_blank')" title="View">👁️</button><button class="action-btn delete" onclick="deleteItem('documents','${d.id}')">🗑️</button></div></td></tr>`;}).join('');
+                document.getElementById('filterDocLang')?.addEventListener('change',loadDocuments);
+                document.getElementById('filterDocStatus')?.addEventListener('change',loadDocuments);
+            } catch(err) { toast('Error loading documents','error'); }
+        }
+
+        function openDocumentModal() {
+            document.getElementById('docId').value='';
+            document.getElementById('documentModalTitle').textContent='Add Document';
+            document.getElementById('documentForm').reset();
+            document.getElementById('docContent').innerHTML='';
+            document.getElementById('docImageUpload').classList.remove('has-image');
+            document.getElementById('docImageUploadText').innerHTML='<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><div>Click to upload image</div>';
+            currentDocImageUrl=null; openModal('documentModal');
+        }
+
+        async function editDocument(id) {
+            try {
+                const snap = await db.collection('documents').doc(id).get();
+                if (!snap.exists) return;
+                const d = snap.data();
+                document.getElementById('docId').value=id;
+                document.getElementById('docLang').value=d.language||'english';
+                document.getElementById('docStatus').value=d.status||'draft';
+                document.getElementById('docTitle').value=d.title||'';
+                document.getElementById('docExcerpt').value=d.excerpt||'';
+                document.getElementById('docContent').innerHTML=d.content||'';
+                document.getElementById('docFeatured').checked=d.featured||false;
+                document.getElementById('documentModalTitle').textContent='Edit Document';
+                currentDocImageUrl=d.image||null;
+                if (d.image) { document.getElementById('docImageUpload').classList.add('has-image'); document.getElementById('docImageUploadText').innerHTML=`<img src="${d.image}" alt="Featured">`; }
+                openModal('documentModal');
+            } catch(err) { toast('Error loading document','error'); }
+        }
+
+        async function saveDocument() {
+            const id=document.getElementById('docId').value;
+            const data={title:document.getElementById('docTitle').value,language:document.getElementById('docLang').value,status:document.getElementById('docStatus').value,excerpt:document.getElementById('docExcerpt').value,content:document.getElementById('docContent').innerHTML,featured:document.getElementById('docFeatured').checked,image:currentDocImageUrl||null,updatedAt:TS()};
+            if (!data.title) { toast('Title required','error'); return; }
+            try {
+                if (id) await db.collection('documents').doc(id).update(data);
+                else { data.createdAt=TS(); await db.collection('documents').add(data); }
+                closeModal('documentModal'); toast('Saved!','success'); loadDocuments(); loadDashboard();
+            } catch(err) { console.error(err); toast('Error saving document','error'); }
+        }
+
+        function handleDocImageUpload(e) {
+            const file=e.target.files[0]; if(!file) return;
+            const reader=new FileReader();
+            reader.onload=ev=>{ document.getElementById('docImageUpload').classList.add('has-image'); document.getElementById('docImageUploadText').innerHTML=`<img src="${ev.target.result}" alt="Preview">`; currentDocImageUrl=ev.target.result; };
+            reader.readAsDataURL(file);
+        }
+        function execDocCmd(cmd,val=null){ document.execCommand(cmd,false,val); document.getElementById('docContent').focus(); }
+
+        // ── Events ───────────────────────────────────────────────────────────
+        async function loadEvents() {
+            try {
+                const snap = await db.collection('events').orderBy('date','asc').get();
+                const events = snap.docs.map(d=>({id:d.id,...d.data(),date:d.data().date?.toDate()||new Date()}));
+                document.getElementById('eventsTable').innerHTML = events.length===0
+                    ? '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:2rem">No events</td></tr>'
+                    : events.map(d=>`<tr><td><div class="item-title">${d.title}</div><div class="item-excerpt">${d.description||''}</div></td><td>${d.date.toLocaleDateString()}</td><td>${d.location||'-'}</td><td><div class="actions"><button class="action-btn" onclick="editEvent('${d.id}')">✏️</button><button class="action-btn delete" onclick="deleteItem('events','${d.id}')">🗑️</button></div></td></tr>`).join('');
+            } catch(err) { toast('Error loading events','error'); }
+        }
+
+        async function editEvent(id) {
+            const snap = await db.collection('events').doc(id).get();
+            if (!snap.exists) return;
+            const d=snap.data();
+            document.getElementById('eventId').value=id;
+            document.getElementById('eventTitle').value=d.title||'';
+            const dt=d.date?.toDate()||new Date();
+            document.getElementById('eventDate').value=dt.toISOString().split('T')[0];
+            document.getElementById('eventLocation').value=d.location||'';
+            document.getElementById('eventDesc').value=d.description||'';
+            openModal('eventModal');
+        }
+
+        async function saveEvent() {
+            const id=document.getElementById('eventId').value, dateVal=document.getElementById('eventDate').value;
+            const data={title:document.getElementById('eventTitle').value,date:dateVal?firebase.firestore.Timestamp.fromDate(new Date(dateVal)):null,location:document.getElementById('eventLocation').value,description:document.getElementById('eventDesc').value||'',updatedAt:TS()};
+            if (!data.title) { toast('Title required','error'); return; }
+            try {
+                if (id) await db.collection('events').doc(id).update(data);
+                else { data.createdAt=TS(); await db.collection('events').add(data); }
+                closeModal('eventModal'); toast('Saved!','success'); loadEvents(); loadDashboard();
+            } catch(err) { toast('Error','error'); }
+        }
+
+        // ── Photos ───────────────────────────────────────────────────────────
+        async function loadPhotos() {
+            try {
+                const snap = await db.collection('photos').orderBy('createdAt','desc').get();
+                const photos = snap.docs.map(d=>({id:d.id,...d.data()}));
+                const grid=document.getElementById('photosAdminGrid');
+                grid.innerHTML = photos.length===0
+                    ? '<p style="color:var(--muted);grid-column:1/-1;text-align:center;padding:2rem;">No photos yet.</p>'
+                    : photos.map(p=>`<div style="position:relative;border-radius:8px;overflow:hidden;border:1px solid var(--border);"><img src="${p.image}" style="width:100%;height:140px;object-fit:cover;display:block;" loading="lazy"><div style="position:absolute;top:6px;right:6px;display:flex;gap:4px;"><button onclick="deleteItem('photos','${p.id}')" style="width:28px;height:28px;border-radius:6px;border:none;background:rgba(192,39,29,0.9);color:white;cursor:pointer;font-size:.8rem;">🗑️</button></div>${p.title?`<div style="padding:6px 8px;font-size:.78rem;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.title}</div>`:''}</div>`).join('');
+            } catch(err) { toast('Error loading photos','error'); }
+        }
+
+        function openPhotoModal() {
+            document.getElementById('photoId').value='';
+            document.getElementById('photoModalTitle').textContent='Add Photo';
+            document.getElementById('photoForm').reset();
+            document.getElementById('photoImageUpload').classList.remove('has-image');
+            document.getElementById('photoImageText').innerHTML='<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><div>Click to upload photo</div>';
+            currentPhotoImageUrl=null; openModal('photoModal');
+        }
+
+        function handlePhotoUpload(e) {
+            const file=e.target.files[0]; if(!file) return;
+            const img=new Image(); const reader=new FileReader();
+            reader.onload=ev=>{ img.onload=()=>{ const MAX=1200,canvas=document.createElement('canvas'); let w=img.width,h=img.height; if(w>MAX||h>MAX){if(w>h){h=Math.round(h*(MAX/w));w=MAX;}else{w=Math.round(w*(MAX/h));h=MAX;}} canvas.width=w;canvas.height=h; canvas.getContext('2d').drawImage(img,0,0,w,h); const data=canvas.toDataURL('image/jpeg',0.82); currentPhotoImageUrl=data; document.getElementById('photoImageUpload').classList.add('has-image'); document.getElementById('photoImageText').innerHTML=`<img src="${data}" alt="Preview">`; }; img.src=ev.target.result; };
+            reader.readAsDataURL(file);
+        }
+
+        async function savePhoto() {
+            if (!currentPhotoImageUrl) { toast('Please upload a photo','error'); return; }
+            const data={image:currentPhotoImageUrl,title:document.getElementById('photoTitle').value||'',caption:document.getElementById('photoCaption').value||'',createdAt:TS()};
+            try { await db.collection('photos').add(data); closeModal('photoModal'); toast('Photo saved!','success'); loadPhotos(); loadDashboard(); }
+            catch(err) { toast('Error saving photo','error'); }
+        }
+
+        // ── Messages ─────────────────────────────────────────────────────────
+        async function loadMessages() {
+            try {
+                const snap = await db.collection('messages').orderBy('sentAt','desc').get();
+                const msgs = snap.docs.map(d=>({id:d.id,...d.data(),sentAt:d.data().sentAt?.toDate()||new Date()}));
+                document.getElementById('messagesTable').innerHTML = msgs.length===0
+                    ? '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:2rem">No messages yet</td></tr>'
+                    : msgs.map(m=>{
+                        const unread=!m.read;
+                        const titleStyle=unread?'font-weight:700':'';
+                        return`<tr style="${unread?'background:rgba(192,39,29,0.04)':''}"><td><div class="item-title" style="${titleStyle}">${m.name||'—'}</div></td><td style="font-size:.85rem">${m.email||'—'}</td><td><div class="item-excerpt" style="max-width:200px;${titleStyle}">${m.subject||m.message?.slice(0,60)||'—'}</div></td><td style="font-size:.82rem">${m.sentAt.toLocaleDateString()}</td><td>${unread?'<span style="background:rgba(192,39,29,0.15);color:#C0271D;padding:.2rem .5rem;border-radius:4px;font-size:.75rem;font-weight:700;">New</span>':'<span style="color:var(--muted);font-size:.78rem">Read</span>'}</td><td><div class="actions"><button class="action-btn" onclick="viewMessage('${m.id}')" title="View">👁️</button><button class="action-btn delete" onclick="deleteItem('messages','${m.id}')" title="Delete">🗑️</button></div></td></tr>`;
+                    }).join('');
+            } catch(err) { toast('Error loading messages','error'); }
+        }
+
+        async function viewMessage(id) {
+            const snap = await db.collection('messages').doc(id).get();
+            if (!snap.exists) return;
+            const m = snap.data();
+            const sentAt = m.sentAt?.toDate()||new Date();
+            if (!m.read) await db.collection('messages').doc(id).update({read:true});
+            alert(`From: ${m.name||'—'} <${m.email||'—'}>
+Subject: ${m.subject||'—'}
+Date: ${sentAt.toLocaleString()}
+
+${m.message||'—'}`);
+            loadMessages(); loadDashboard();
+        }
+
+        // ── Subscribers ──────────────────────────────────────────────────────
+        async function loadSubscribers() {
+            try {
+                const snap = await db.collection('subscribers').orderBy('subscribedAt','desc').get();
+                const subs = snap.docs.map(d=>({id:d.id,...d.data(),subscribedAt:d.data().subscribedAt?.toDate()||new Date()}));
+                document.getElementById('subscribersTable').innerHTML = subs.length===0
+                    ? '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:2rem">No subscribers yet</td></tr>'
+                    : subs.map(s=>`<tr><td style="font-weight:500">${s.email}</td><td style="font-size:.85rem">${s.source||'—'}</td><td style="font-size:.85rem">${s.subscribedAt.toLocaleDateString()}</td><td><div class="actions"><button class="action-btn delete" onclick="deleteItem('subscribers','${s.id}')" title="Remove">🗑️</button></div></td></tr>`).join('');
+            } catch(err) { toast('Error loading subscribers','error'); }
+        }
+
+        async function exportSubscribers() {
+            const snap = await db.collection('subscribers').orderBy('subscribedAt','desc').get();
+            const rows = ['Email,Source,Date'];
+            snap.docs.forEach(d=>{const s=d.data(),dt=s.subscribedAt?.toDate()||new Date(); rows.push(`${s.email},${s.source||''},${dt.toISOString().split('T')[0]}`);});
+            const blob=new Blob([rows.join('
+')],{type:'text/csv'});
+            const url=URL.createObjectURL(blob);
+            const a=Object.assign(document.createElement('a'),{href:url,download:`dmlek-subscribers-${new Date().toISOString().split('T')[0]}.csv`});
+            a.click(); URL.revokeObjectURL(url); toast('Exported!','success');
+        }
+
+        // ── Delete ───────────────────────────────────────────────────────────
+        async function deleteItem(col, id) {
+            if (!confirm('Delete this item?')) return;
+            await db.collection(col).doc(id).delete();
+            toast('Deleted!','success'); loadDashboard();
+            if (currentPage==='articles')    loadArticles();
+            else if (currentPage==='media')       loadMedia();
+            else if (currentPage==='documents')   loadDocuments();
+            else if (currentPage==='events')      loadEvents();
+            else if (currentPage==='photos')      loadPhotos();
+            else if (currentPage==='messages')    loadMessages();
+            else if (currentPage==='subscribers') loadSubscribers();
+        }
+
+        // ── Export / Import ──────────────────────────────────────────────────
+        async function exportData() {
+            const data={};
+            for (const col of ['articles','media','documents','events','photos']) {
+                const snap=await db.collection(col).get();
+                data[col]=snap.docs.map(d=>({id:d.id,...d.data()}));
+            }
+            const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+            const url=URL.createObjectURL(blob);
+            const a=Object.assign(document.createElement('a'),{href:url,download:`dmlek-backup-${new Date().toISOString().split('T')[0]}.json`});
+            a.click(); URL.revokeObjectURL(url); toast('Exported!','success');
+        }
+
+        // ── Modal helpers ─────────────────────────────────────────────────────
+        function openModal(id)  { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        function execCmd(cmd,val=null){ document.execCommand(cmd,false,val); document.getElementById('articleContent').focus(); }
+
+        function showToast(msg,type) { toast(msg,type||'success'); }
+        function toast(msg,type='success') {
+            const el=document.getElementById('toast'),ti=document.getElementById('toastTitle'),tm=document.getElementById('toastMessage');
+            ti.textContent=type==='error'?'Error':'Success'; tm.textContent=msg;
+            el.className='toast '+type+' show'; setTimeout(()=>el.classList.remove('show'),3000);
+        }
+
+        // Mobile sidebar
+        document.getElementById('mobileSidebarToggle').addEventListener('click',()=>{ document.getElementById('sidebar').classList.toggle('active'); document.getElementById('sidebarOverlay').classList.toggle('active'); });
+        document.getElementById('sidebarOverlay').addEventListener('click',()=>{ document.getElementById('sidebar').classList.remove('active'); document.getElementById('sidebarOverlay').classList.remove('active'); });
+
+        // Close modals on Escape
+        document.addEventListener('keydown',e=>{ if(e.key==='Escape') document.querySelectorAll('.modal-overlay.active').forEach(m=>closeModal(m.id)); });
+    </script>
+</body>
+</html>

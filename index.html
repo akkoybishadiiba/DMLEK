@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light" data-ui-lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DMLEK - Democratic Movement for the Liberation of Eritrean Kunama</title>
+    <meta name="description" content="Advocating for the rights of nations and nationalities in Eritrea, East Africa">
+
+    <!-- Open Graph / Facebook / WhatsApp -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://mesel-biherat.com/">
+    <meta property="og:title" content="DMLEK — Democratic Movement for the Liberation of Eritrean Kunama">
+    <meta property="og:description" content="Advocating for the rights, culture, and self-determination of the Kunama people of Eritrea since 1995.">
+    <meta property="og:image" content="https://mesel-biherat.com/images/dmlek-emblem.jpg">
+    <meta property="og:image:width" content="600">
+    <meta property="og:image:height" content="600">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:site_name" content="DMLEK">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="DMLEK — Democratic Movement for the Liberation of Eritrean Kunama">
+    <meta name="twitter:description" content="Advocating for the rights, culture, and self-determination of the Kunama people of Eritrea since 1995.">
+    <meta name="twitter:image" content="https://mesel-biherat.com/images/dmlek-emblem.jpg">
+
+    <!-- SEO -->
+    <meta name="robots" content="index, follow">
+    <meta name="keywords" content="DMLEK, Kunama, Eritrea, democratic movement, human rights, Horn of Africa, Kunama people">
+    <link rel="canonical" href="https://mesel-biherat.com/">
+    <link rel="icon" type="image/png" href="images/dmlek-flag.png">
+    <link rel="apple-touch-icon" href="images/dmlek-flag.png">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Source+Sans+3:wght@300;400;500;600;700&family=Noto+Sans+Ethiopic:wght@400;600;700&family=Noto+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="css/main.css">
+    <style>
+        /* Organization Banner */
+        .org-banner{background:linear-gradient(180deg,#0D0D0D 0%,#1A1A1A 50%,#0D0D0D 100%);padding:2rem;padding-top:calc(72px + 1.5rem);border-bottom:3px solid;border-image:linear-gradient(90deg,transparent,var(--terracotta),var(--gold),var(--forest),transparent) 1;position:relative;overflow:hidden}
+        .org-banner::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 20% 50%,rgba(192, 39, 29,.1) 0%,transparent 50%),radial-gradient(ellipse at 80% 50%,rgba(212,168,83,.1) 0%,transparent 50%);pointer-events:none}
+        .org-banner::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent)}
+        .org-banner-content{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:2.5rem;position:relative;z-index:1}
+        .org-banner-emblem{position:relative}
+        .org-banner-emblem::before{content:'';position:absolute;inset:-5px;border-radius:50%;background:conic-gradient(from 0deg,var(--terracotta),var(--gold),var(--forest),var(--terracotta));animation:spin 8s linear infinite;opacity:.6}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        .org-banner-emblem img{height:115px;width:115px;object-fit:cover;border-radius:50%;position:relative;z-index:1;border:4px solid #0D0D0D;box-shadow:0 0 40px rgba(192, 39, 29,.3)}
+        .org-banner-flag{position:relative}
+        .org-banner-flag img{height:95px;width:auto;border-radius:10px;box-shadow:0 10px 40px rgba(0,0,0,.5),0 0 20px rgba(192, 39, 29,.2);border:2px solid rgba(255,255,255,.1);transition:transform .3s,box-shadow .3s}
+        .org-banner-flag img:hover{transform:scale(1.05) rotate(1deg);box-shadow:0 15px 50px rgba(0,0,0,.6),0 0 30px rgba(192, 39, 29,.3)}
+        .org-banner-text{flex:1;text-align:center;padding:0 1rem}
+        .org-banner-text .lang-line{line-height:1.4}
+        .org-banner-text .kunama{font-size:1.5rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;background:linear-gradient(135deg,#FFD700 0%,#FFC107 25%,#FFE082 50%,#FFC107 75%,#FFD700 100%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shimmer 3s ease-in-out infinite;font-family:'Playfair Display',Georgia,serif;margin-bottom:.1rem}
+        @keyframes shimmer{0%,100%{background-position:0% center}50%{background-position:200% center}}
+        .org-banner-text .abbrev{font-size:1rem;color:rgba(255,215,0,.7);letter-spacing:2px;font-weight:600;margin-bottom:.5rem}
+        .org-banner-text .english{font-size:1.2rem;color:#fff;font-weight:600;letter-spacing:.5px;font-family:'Playfair Display',Georgia,serif;text-shadow:0 2px 15px rgba(0,0,0,.8)}
+        .org-banner-text .abbrev-en{font-size:.95rem;color:rgba(255,255,255,.6);letter-spacing:1px;font-weight:500;margin-bottom:.5rem}
+        .org-banner-text .tigrinya{font-size:1.15rem;background:linear-gradient(135deg,#42A5F5,#90CAF9,#42A5F5);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-family:'Noto Sans Ethiopic',sans-serif;font-weight:600;margin-top:.3rem}
+        .org-banner-text .arabic{font-size:1.15rem;background:linear-gradient(135deg,#66BB6A,#A5D6A7,#66BB6A);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-family:'Noto Sans Arabic',sans-serif;direction:rtl;font-weight:600;margin-top:.4rem}
+        .org-banner-text .divider{width:50%;max-width:300px;height:1px;background:linear-gradient(90deg,transparent,rgba(212,168,83,.4),rgba(192, 39, 29,.4),rgba(212,168,83,.4),transparent);margin:.6rem auto}
+        @media(max-width:900px){
+            .org-banner{padding:1.5rem 1rem;padding-top:calc(64px + 1rem)}
+            .org-banner-content{flex-direction:column;gap:1.5rem}
+            .org-banner-emblem img{height:90px;width:90px}
+            .org-banner-flag img{height:70px}
+            .org-banner-text .kunama{font-size:1.15rem;letter-spacing:1.5px}
+            .org-banner-text .english{font-size:1rem}
+            .org-banner-text .tigrinya,.org-banner-text .arabic{font-size:1rem}
+            .org-banner-text .abbrev,.org-banner-text .abbrev-en{font-size:.85rem}
+        }
+        @media(max-width:500px){
+            .org-banner{padding:1rem .75rem;padding-top:calc(60px + 0.875rem)}
+            .org-banner-emblem img{height:70px;width:70px}
+            .org-banner-flag img{height:55px}
+            .org-banner-text .kunama{font-size:.95rem;letter-spacing:1px}
+            .org-banner-text .english{font-size:.9rem}
+            .org-banner-text .tigrinya,.org-banner-text .arabic{font-size:.85rem}
+            .org-banner-text .abbrev,.org-banner-text .abbrev-en{font-size:.75rem}
+            .org-banner-text .divider{margin:.4rem auto}
+        }
+        
+        /* Announcement Bar */
+        .announcement-bar{background:linear-gradient(90deg,var(--burgundy),var(--forest));color:#fff;padding:.5rem 0;font-size:.85rem;overflow:hidden;position:relative}
+        .announcement-content{display:flex;animation:scroll-left 30s linear infinite;white-space:nowrap}
+        .announcement-content span{padding:0 3rem}
+        @keyframes scroll-left{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+        .announcement-close{position:absolute;right:1rem;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.2);border:none;color:#fff;width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:1rem;line-height:1}
+        
+        /* Search Modal */
+        .search-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:3000;display:flex;align-items:flex-start;justify-content:center;padding:10vh 1rem;opacity:0;visibility:hidden;transition:all .3s}
+        .search-overlay.active{opacity:1;visibility:visible}
+        .search-modal{background:var(--bg-card);border-radius:16px;width:100%;max-width:600px;box-shadow:0 25px 80px rgba(0,0,0,.4);overflow:hidden;transform:translateY(-20px) scale(.95);transition:transform .3s}
+        .search-overlay.active .search-modal{transform:translateY(0) scale(1)}
+        .search-input-wrap{display:flex;align-items:center;padding:1rem 1.25rem;border-bottom:1px solid var(--border-color);gap:.75rem}
+        .search-input-wrap svg{color:var(--text-muted);flex-shrink:0}
+        .search-input{flex:1;border:none;background:none;font-size:1.1rem;color:var(--text-primary);outline:none}
+        .search-input::placeholder{color:var(--text-muted)}
+        .search-shortcut{background:var(--bg-secondary);padding:.25rem .5rem;border-radius:4px;font-size:.75rem;color:var(--text-muted)}
+        .search-results{max-height:400px;overflow-y:auto;padding:.5rem}
+        .search-result-item{display:block;padding:1rem;border-radius:10px;cursor:pointer;transition:background .2s;color:var(--text-primary);text-decoration:none}
+        .search-result-item:hover{background:var(--bg-secondary)}
+        .search-result-title{font-weight:600;margin-bottom:.25rem}
+        .search-result-excerpt{font-size:.85rem;color:var(--text-muted)}
+        .search-empty{padding:2rem;text-align:center;color:var(--text-muted)}
+        .search-footer{padding:.75rem 1.25rem;border-top:1px solid var(--border-color);display:flex;justify-content:space-between;font-size:.8rem;color:var(--text-muted)}
+        .search-footer kbd{background:var(--bg-secondary);padding:.15rem .4rem;border-radius:4px;margin:0 .15rem}
+        
+        /* Language Dropdown */
+        .lang-dropdown{position:relative}
+        .lang-menu{position:absolute;top:100%;right:0;margin-top:.5rem;background:var(--bg-card);border:1px solid var(--border-color);border-radius:10px;padding:.5rem;min-width:140px;box-shadow:0 10px 40px var(--shadow-color);opacity:0;visibility:hidden;transform:translateY(-10px);transition:all .3s;z-index:100}
+        .lang-dropdown:hover .lang-menu,.lang-dropdown.active .lang-menu{opacity:1;visibility:visible;transform:translateY(0)}
+        .lang-option{display:flex;align-items:center;gap:.5rem;padding:.5rem .75rem;border-radius:6px;cursor:pointer;font-size:.85rem;color:var(--text-primary);transition:background .2s}
+        .lang-option:hover{background:var(--bg-secondary)}
+        .lang-option.active{background:rgba(192, 39, 29,.15);color:var(--terracotta)}
+        
+        /* Newsletter */
+        .newsletter{background:linear-gradient(135deg,var(--terracotta) 0%,var(--burgundy) 100%);padding:4rem 2rem;border-radius:24px;text-align:center;margin:2rem 0}
+        .newsletter h3{color:#fff;font-size:1.75rem;margin-bottom:.5rem}
+        .newsletter p{color:rgba(255,255,255,.8);margin-bottom:1.5rem}
+        .newsletter-form{display:flex;gap:.75rem;max-width:450px;margin:0 auto}
+        .newsletter-input{flex:1;padding:.875rem 1.25rem;border:none;border-radius:10px;font-size:.95rem;outline:none}
+        .newsletter-btn{padding:.875rem 1.5rem;background:#111111;color:#fff;border:none;border-radius:10px;font-weight:600;cursor:pointer;transition:transform .2s}
+        .newsletter-btn:hover{transform:scale(1.05)}
+        
+        /* Scroll Animations */
+        .fade-up{opacity:0;transform:translateY(30px);transition:opacity .6s ease,transform .6s ease}
+        .fade-up.visible{opacity:1;transform:translateY(0)}
+        
+        /* Hero Styles */
+        .hero{min-height:100vh;background:linear-gradient(160deg,#111111 0%,#7A1A14 60%,#111111 100%);position:relative;display:flex;align-items:center;overflow:hidden}
+        .hero::before{content:'';position:absolute;top:-50%;right:-30%;width:80%;height:150%;background:radial-gradient(ellipse,rgba(212,168,83,.15) 0%,transparent 60%);animation:float 20s ease-in-out infinite}
+        @keyframes float{0%,100%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(-30px,30px) rotate(5deg)}}
+        .hero-content{max-width:1400px;margin:0 auto;padding:8rem 2rem 4rem;display:grid;grid-template-columns:1.2fr 1fr;gap:4rem;align-items:center;position:relative;z-index:1}
+        .hero-text h1{font-size:clamp(2.5rem,5vw,4rem);font-weight:800;color:#fff;line-height:1.1;margin-bottom:1.5rem}
+        .hero-text h1 span{background:linear-gradient(135deg,var(--gold),var(--gold-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .hero-subtitle{font-size:1.15rem;color:rgba(255,255,255,.8);margin-bottom:2rem;font-weight:300;max-width:520px}
+        .hero-cta{display:flex;gap:1rem;flex-wrap:wrap}
+        .hero-card{background:rgba(255,255,255,.08);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.15);border-radius:24px;padding:2rem;transform:rotate(3deg);animation:cardFloat 6s ease-in-out infinite}
+        @keyframes cardFloat{0%,100%{transform:rotate(3deg) translateY(0)}50%{transform:rotate(3deg) translateY(-15px)}}
+        .hero-card h3{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--gold);margin-bottom:1rem}
+        .hero-card p{color:rgba(255,255,255,.8);font-size:.9rem;line-height:1.7}
+        .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1.5rem}
+        .stat{text-align:center;padding:1rem .5rem;background:rgba(255,255,255,.05);border-radius:12px}
+        .stat-number{font-family:'Playfair Display',serif;font-size:1.75rem;font-weight:700;color:var(--gold)}
+        .stat-label{font-size:.7rem;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:1px}
+        .scroll-indicator{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.5rem;color:rgba(255,255,255,.6);animation:bounce 2s infinite}
+        @keyframes bounce{0%,20%,50%,80%,100%{transform:translateX(-50%) translateY(0)}40%{transform:translateX(-50%) translateY(-10px)}}
+        .scroll-indicator span{font-size:.7rem;text-transform:uppercase;letter-spacing:2px}
+        
+        /* Timeline */
+        /* Horizontal scrollable timeline */
+        .timeline{position:relative;padding:2rem 0 1.5rem;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:var(--terracotta) var(--bg-secondary)}
+        .timeline::-webkit-scrollbar{height:4px}
+        .timeline::-webkit-scrollbar-track{background:var(--bg-secondary);border-radius:2px}
+        .timeline::-webkit-scrollbar-thumb{background:var(--terracotta);border-radius:2px}
+        .timeline-track{display:flex;gap:0;position:relative;min-width:max-content;padding-bottom:0.5rem}
+        .timeline-track::before{content:'';position:absolute;top:28px;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--terracotta),var(--gold-light),var(--terracotta));z-index:0}
+        .timeline-item{display:flex;flex-direction:column;align-items:center;position:relative;width:220px;flex-shrink:0;padding:0 1rem}
+        .timeline-item::before{content:'';width:14px;height:14px;background:var(--terracotta);border:3px solid var(--bg-primary);border-radius:50%;z-index:1;flex-shrink:0;margin-bottom:1rem;box-shadow:0 0 0 3px rgba(192,39,29,0.25)}
+        .timeline-content{background:var(--bg-card);padding:1.25rem;border-radius:12px;box-shadow:0 4px 20px var(--shadow-color);border:1px solid var(--border-color);width:100%;text-align:center}
+        .timeline-year{display:inline-block;padding:.3rem .7rem;background:linear-gradient(135deg,var(--terracotta),var(--burgundy));color:#fff;border-radius:20px;font-weight:700;font-size:.78rem;margin-bottom:.6rem;white-space:nowrap}
+        .timeline-content h3{font-size:.95rem;color:var(--text-primary);margin-bottom:.4rem;line-height:1.35}
+        .timeline-content p{color:var(--text-secondary);font-size:.82rem;line-height:1.55}
+        @media(max-width:768px){.timeline-item{width:180px}.timeline-content{padding:1rem}}
+        
+        /* Organizations */
+        .org-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:2rem;transition:all .3s}
+        .org-card:hover{background:rgba(255,255,255,.08);border-color:var(--gold);transform:translateY(-5px)}
+        .org-icon{width:56px;height:56px;background:linear-gradient(135deg,var(--terracotta),var(--burgundy));border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:1.25rem;font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:#fff}
+        .org-card h3{font-size:1.25rem;color:#fff;margin-bottom:.5rem}
+        .org-card p{color:rgba(255,255,255,.7);line-height:1.7;font-size:.9rem}
+        
+        @media(max-width:1024px){
+            .hero-content{grid-template-columns:1fr;text-align:center}
+            .hero-subtitle{margin:0 auto 2rem}
+            .hero-cta{justify-content:center}
+            .hero-card{display:none}
+            /* timeline stays horizontal on all breakpoints */
+        }
+        @media(max-width:768px){
+            .newsletter-form{flex-direction:column}
+        }
+    </style>
+</head>
+<body>
+    
+    <noscript>
+        <div style="position:fixed;inset:0;background:#111111;color:#F0E8E0;display:flex;align-items:center;justify-content:center;z-index:99999;padding:2rem;text-align:center;font-family:Georgia,serif;">
+            <div style="max-width:480px;">
+                <div style="font-size:2.5rem;font-weight:700;color:#EFC132;margin-bottom:1rem;">DMLEK</div>
+                <p style="font-size:1.1rem;line-height:1.7;margin-bottom:1.5rem;">This website requires JavaScript to display content. Please enable JavaScript in your browser settings to continue.</p>
+                <p style="font-size:0.95rem;color:rgba(240,232,224,0.6);line-height:1.7;">You can also reach us directly:<br>
+                <a href="mailto:akkoybishadiiba@gmail.com" style="color:#EFC132;">akkoybishadiiba@gmail.com</a><br>
+                <a href="https://mesel-biherat.com" style="color:#EFC132;">mesel-biherat.com</a></p>
+            </div>
+        </div>
+    </noscript>
+    <div class="reading-progress" id="readingProgress"></div>
+    <div class="pattern-bg"></div>
+
+    <!-- Announcement Bar (hardcoded — re-enable and update text when needed, or wire to Firestore settings collection) -->
+    <!--
+    <div class="announcement-bar" id="announcementBar">
+        <div class="announcement-content">
+            <span>📢 Welcome to the new DMLEK website — Advocating for Kunama rights since 1995</span>
+            <span>📢 Welcome to the new DMLEK website — Advocating for Kunama rights since 1995</span>
+        </div>
+        <button class="announcement-close" onclick="document.getElementById('announcementBar').style.display='none'">×</button>
+    </div>
+    -->
+
+    <!-- Organization Banner -->
+    <div class="org-banner">
+        <div class="org-banner-content">
+            <div class="org-banner-emblem">
+                <img src="images/dmlek-emblem.jpg" alt="DMLEK Emblem">
+            </div>
+            <div class="org-banner-text">
+                <div class="lang-line kunama">ERTEREA KUNAMA KOYBIŠA DIMOKRASIYA SUŇADA</div>
+                <div class="lang-line abbrev">(ERKUKODISU)</div>
+                <div class="divider"></div>
+                <div class="lang-line english">Democratic Movement for the Liberation of Eritrean Kunama</div>
+                <div class="lang-line abbrev-en">(DMLEK)</div>
+                <div class="divider"></div>
+                <div class="lang-line tigrinya">ዲሞክራስያዊ ምንቅስቓስ ሓርነት ኩናማ ኤርትራ (ዲምሓኩኤ)</div>
+                <div class="lang-line arabic">الحركة الديمقراطية لتحرير كوناما إريتريا</div>
+            </div>
+            <div class="org-banner-flag">
+                <img src="images/dmlek-flag.png" alt="DMLEK Flag">
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="navbar-container">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">D</div>
+                <span class="logo-text">DMLEK</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html" class="active">Home</a></li>
+                <li><a href="pages/articles.html">Articles</a></li>
+                <li><a href="pages/media.html">Media</a></li>
+                <li><a href="pages/documents.html">Documents</a></li>
+                <li><a href="pages/events.html">Events</a></li>
+                <li><a href="pages/about.html">About</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="nav-btn" id="searchBtn" title="Search (Ctrl+K)">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                </button>
+                <div class="lang-dropdown" id="langDropdown">
+                    <button class="nav-btn" id="langBtn" title="Language">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    </button>
+                    <div class="lang-menu">
+                        <div class="lang-option active" data-lang="en">🇬🇧 English</div>
+                        <div class="lang-option" data-lang="ti">🇪🇷 ትግርኛ</div>
+                        <div class="lang-option" data-lang="ar">🇸🇦 العربية</div>
+                        <div class="lang-option" data-lang="ku">🏛️ Kunama</div>
+                    </div>
+                </div>
+                <button class="nav-btn" id="themeToggle" title="Toggle theme">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="sun-icon"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="moon-icon" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                </button>
+                <button class="nav-btn mobile-toggle" id="mobileToggle">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <a href="index.html" class="logo"><div class="logo-icon">D</div><span class="logo-text" style="color:var(--text-primary)">DMLEK</span></a>
+            <button class="mobile-menu-close" id="mobileClose"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+        </div>
+        <ul class="mobile-nav-links">
+            <li><a href="index.html" class="active">Home</a></li>
+            <li><a href="pages/articles.html">Articles</a></li>
+            <li><a href="pages/media.html">Media</a></li>
+            <li><a href="pages/documents.html">Documents</a></li>
+            <li><a href="pages/events.html">Events</a></li>
+            <li><a href="pages/about.html">About</a></li>
+            
+        </ul>
+    </div>
+
+    <!-- Search Modal -->
+    <div class="search-overlay" id="searchOverlay">
+        <div class="search-modal">
+            <div class="search-input-wrap">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <input type="text" class="search-input" id="searchInput" placeholder="Search articles, media, documents...">
+                <span class="search-shortcut">ESC</span>
+            </div>
+            <div class="search-results" id="searchResults"><div class="search-empty">Start typing to search...</div></div>
+            <div class="search-footer"><span><kbd>↵</kbd> select</span><span><kbd>↑</kbd><kbd>↓</kbd> navigate</span><span><kbd>esc</kbd> close</span></div>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1>Advocating for <span>Kunama Rights</span> and Justice</h1>
+                <p class="hero-subtitle">Building a future of democracy, equality, and self-determination for the Kunama people and all marginalized nations in Eritrea.</p>
+                <div class="hero-cta">
+                    <a href="pages/articles.html" class="btn btn-primary"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg> Explore Articles</a>
+                    <a href="pages/about.html" class="btn btn-outline">Learn More</a>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="hero-card">
+                    <h3>Our Mission</h3>
+                    <p>To preserve and promote Kunama culture, language, and identity while fighting for democratic rights and self-determination.</p>
+                    <div class="stat-grid">
+                        <div class="stat"><div class="stat-number" data-target="4">0</div><div class="stat-label">Languages</div></div>
+                        <div class="stat"><div class="stat-number" data-target="30">0</div><div class="stat-label">Years Active</div></div>
+                        <div class="stat"><div class="stat-number">∞</div><div class="stat-label">Commitment</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="scroll-indicator"><span>Scroll</span><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M19 12l-7 7-7-7"/></svg></div>
+    </section>
+
+    <!-- Featured Articles -->
+    <section class="section section-alt">
+        <div class="container">
+            <div class="section-header fade-up"><h2>Latest <span>Articles</span></h2><p>Stay informed with our most recent publications</p></div>
+            <div class="grid grid-auto" id="featuredArticles"><div class="skeleton skeleton-card"></div><div class="skeleton skeleton-card"></div><div class="skeleton skeleton-card"></div></div>
+            <div style="text-align:center;margin-top:2rem" class="fade-up"><a href="pages/articles.html" class="btn btn-secondary">View All Articles</a></div>
+        </div>
+    </section>
+
+    <!-- Newsletter -->
+    <section class="section">
+        <div class="container">
+            <div class="newsletter fade-up">
+                <h3>Stay Updated</h3>
+                <p>Subscribe to receive the latest news and updates from DMLEK</p>
+                <form class="newsletter-form" id="newsletterForm">
+                    <input type="email" class="newsletter-input" placeholder="Enter your email" required>
+                    <button type="submit" class="newsletter-btn">Subscribe</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Upcoming Events -->
+    <section class="section section-alt">
+        <div class="container">
+            <div class="section-header fade-up"><h2>Upcoming <span>Events</span></h2><p>Join us in our upcoming activities and gatherings</p></div>
+            <div class="grid grid-3" id="upcomingEvents"><div class="skeleton skeleton-card"></div><div class="skeleton skeleton-card"></div><div class="skeleton skeleton-card"></div></div>
+            <div style="text-align:center;margin-top:2rem" class="fade-up"><a href="pages/events.html" class="btn btn-secondary">View All Events</a></div>
+        </div>
+    </section>
+
+    <!-- Timeline -->
+    <section class="section">
+        <div class="container">
+            <div class="section-header fade-up"><h2>Our <span>Journey</span></h2><p>Key milestones in DMLEK's history</p></div>
+            <div class="timeline">
+                <div class="timeline-track">
+                <div class="timeline-item"><div class="timeline-content"><span class="timeline-year">April 1, 1995</span><h3>DMLEK Founded</h3><p>Initial General Assembly held in Sudan.</p></div></div>
+                <div class="timeline-item"><div class="timeline-content"><span class="timeline-year">October 18, 1998</span><h3>First General Assembly</h3><p>Convenes in Tigray, Ethiopia.</p></div></div>
+                <div class="timeline-item"><div class="timeline-content"><span class="timeline-year">September 15, 2002</span><h3>Second General Assembly</h3><p>Held in Tigray, Ethiopia.</p></div></div>
+                <div class="timeline-item"><div class="timeline-content"><span class="timeline-year">April 1, 2006</span><h3>Third General Assembly</h3><p>Convenes in Tigray, Ethiopia.</p></div></div>
+                <div class="timeline-item"><div class="timeline-content"><span class="timeline-year">December 19, 2010</span><h3>Fourth General Assembly</h3><p>Held in Tigray, Ethiopia.</p></div></div>
+                <div class="timeline-item"><div class="timeline-content"><span class="timeline-year">April 1, 2017</span><h3>Fifth General Assembly</h3><p>Reaffirms DMLEK's mission and strategy.</p></div></div>
+                <div class="timeline-item"><div class="timeline-content"><span class="timeline-year">April 1, 2026</span><h3>First Emergency Assembly</h3><p>Special assembly to address urgent developments.</p></div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Allied Organizations — commented out until links and details are confirmed
+    <section class="section section-dark">
+        <div class="container">
+            <div class="section-header fade-up"><h2>Allied <span>Organizations</span></h2><p>Working together for a democratic Eritrea</p></div>
+            <div class="grid grid-4 fade-up">
+                <div class="org-card"><div class="org-icon">D</div><h3>DMLEK</h3><p>Democratic Movement for the Liberation of Eritrean Kunama.</p></div>
+                <div class="org-card"><div class="org-icon">R</div><h3>RSADO</h3><p>Red Sea Afar Democratic Organization.</p></div>
+                <div class="org-card"><div class="org-icon">E</div><h3>EKRA</h3><p>Eritrean Kunama Relief Association.</p></div>
+                <div class="org-card"><div class="org-icon">A</div><h3>Afara Kotada</h3><p>Unity among Eritrean opposition groups.</p></div>
+            </div>
+        </div>
+    </section>
+    -->
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand"><h3>DMLEK</h3><p>Democratic Movement for the Liberation of Eritrean Kunama. Advocating for justice, democracy, and the rights of all nations in Eritrea.</p>
+                <div style="margin-top:1rem;font-size:.85rem;line-height:2">
+                    <div><a href="https://mesel-biherat.com" target="_blank" rel="noopener noreferrer" style="color:var(--gold)">🌐 mesel-biherat.com</a></div>
+                    <div><a href="mailto:akkoybishadiiba@gmail.com" style="color:var(--gold)">✉️ akkoybishadiiba@gmail.com</a></div>
+                </div>
+                </div>
+                <div class="footer-col"><h4>Quick Links</h4><ul><li><a href="index.html">Home</a></li><li><a href="pages/articles.html">Articles</a></li><li><a href="pages/media.html">Media</a></li><li><a href="pages/about.html">About Us</a></li></ul></div>
+                <div class="footer-col"><h4>Resources</h4><ul><li><a href="pages/documents.html">Documents</a></li><li><a href="pages/events.html">Events</a></li></ul></div>
+                <div class="footer-col"><h4>Browse by Language</h4><ul><li><a href="pages/articles.html?lang=english">English Articles</a></li><li><a href="pages/articles.html?lang=tigrinya">ትግርኛ (Tigrinya)</a></li><li><a href="pages/articles.html?lang=arabic">العربية (Arabic)</a></li><li><a href="pages/articles.html?lang=kunama">Kunama</a></li></ul></div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 1995 - <span id="copyrightYear">2026</span> DMLEK. All rights reserved.</p>
+                <div class="social-links">
+                    <a href="https://www.facebook.com/profile.php?id=61574500588449" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="Facebook"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top -->
+    <button class="back-to-top" id="backToTop" aria-label="Back to top"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg></button>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"><span id="toastMessage">Success</span></div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
+    <script>
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyCFUzAQucspGeL9e580ha0t9ajmibtZYVU",
+            authDomain: "dmlek-5e41d.firebaseapp.com",
+            projectId: "dmlek-5e41d",
+            storageBucket: "dmlek-5e41d.firebasestorage.app",
+            messagingSenderId: "776258229369",
+            appId: "1:776258229369:web:19b757e38f79156f91f0a8"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let articles = [];
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            initTheme();
+            initNavigation();
+            initSearch();
+            initScrollEffects();
+            initAnimatedCounters();
+            loadContent();
+        });
+
+        // Theme
+        function initTheme() {
+            const theme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', theme);
+            updateThemeIcon(theme);
+            document.getElementById('themeToggle').addEventListener('click', () => {
+                const current = document.documentElement.getAttribute('data-theme');
+                const next = current === 'light' ? 'dark' : 'light';
+                document.documentElement.setAttribute('data-theme', next);
+                localStorage.setItem('theme', next);
+                updateThemeIcon(next);
+            });
+        }
+        function updateThemeIcon(theme) {
+            document.querySelector('.sun-icon').style.display = theme === 'light' ? 'block' : 'none';
+            document.querySelector('.moon-icon').style.display = theme === 'dark' ? 'block' : 'none';
+        }
+
+        // Navigation
+        function initNavigation() {
+            const navbar = document.getElementById('navbar');
+            window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 50));
+            
+            const mobileToggle = document.getElementById('mobileToggle');
+            const mobileMenu = document.getElementById('mobileMenu');
+            const mobileOverlay = document.getElementById('mobileOverlay');
+            const mobileClose = document.getElementById('mobileClose');
+            
+            const closeMobile = () => { mobileMenu.classList.remove('active'); mobileOverlay.classList.remove('active'); document.body.style.overflow = ''; };
+            const openMobile = () => { mobileMenu.classList.add('active'); mobileOverlay.classList.add('active'); document.body.style.overflow = 'hidden'; };
+            
+            mobileToggle.addEventListener('click', openMobile);
+            mobileClose.addEventListener('click', closeMobile);
+            mobileOverlay.addEventListener('click', closeMobile);
+            document.querySelectorAll('.mobile-nav-links a').forEach(a => a.addEventListener('click', closeMobile));
+            
+            document.querySelectorAll('.lang-option').forEach(opt => opt.addEventListener('click', () => setLanguage(opt.dataset.lang)));
+            
+            const backToTop = document.getElementById('backToTop');
+            window.addEventListener('scroll', () => backToTop.classList.toggle('visible', window.scrollY > 500));
+            backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+            
+            window.addEventListener('scroll', () => {
+                const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+                document.getElementById('readingProgress').style.width = (window.scrollY / scrollHeight) * 100 + '%';
+            });
+        }
+
+        // Language picker — navigates to articles filtered by language
+        // Maps nav lang codes to article filter values
+        const langToFilter = { en: 'english', ti: 'tigrinya', ar: 'arabic', ku: 'kunama' };
+        const langLabels = { en: 'English', ti: 'Tigrinya', ar: 'Arabic', ku: 'Kunama' };
+
+        function setLanguage(lang) {
+            const filter = langToFilter[lang] || lang;
+            // Navigate to articles page with language filter as URL param
+            window.location.href = 'pages/articles.html?lang=' + filter;
+        }
+
+        // Mark active based on stored pref (cosmetic only)
+        (function(){
+            const stored = localStorage.getItem('ui_lang') || 'en';
+            document.querySelectorAll('.lang-option').forEach(opt => opt.classList.toggle('active', opt.dataset.lang === stored));
+        })();
+
+        // Search
+        function initSearch() {
+            const overlay = document.getElementById('searchOverlay');
+            const input = document.getElementById('searchInput');
+            const results = document.getElementById('searchResults');
+            
+            const openSearch = () => { overlay.classList.add('active'); setTimeout(() => input.focus(), 100); };
+            const closeSearch = () => { overlay.classList.remove('active'); input.value = ''; results.innerHTML = '<div class="search-empty">Start typing to search...</div>'; };
+            
+            document.getElementById('searchBtn').addEventListener('click', openSearch);
+            overlay.addEventListener('click', e => { if (e.target === overlay) closeSearch(); });
+            
+            document.addEventListener('keydown', e => {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'k') { e.preventDefault(); openSearch(); }
+                if (e.key === 'Escape') closeSearch();
+            });
+            
+            input.addEventListener('input', () => {
+                const query = input.value.toLowerCase().trim();
+                if (!query) { results.innerHTML = '<div class="search-empty">Start typing to search...</div>'; return; }
+                const filtered = articles.filter(a => a.title.toLowerCase().includes(query) || (a.excerpt && a.excerpt.toLowerCase().includes(query)));
+                if (filtered.length === 0) { results.innerHTML = '<div class="search-empty">No results found</div>'; }
+                else { results.innerHTML = filtered.slice(0, 8).map(a => `<a href="pages/article.html?id=${a.id}" class="search-result-item"><div class="search-result-title">${a.title}</div><div class="search-result-excerpt">${a.excerpt || ''}</div></a>`).join(''); }
+            });
+        }
+
+        // Scroll Effects
+        function initScrollEffects() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+            }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+            document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+        }
+
+        // Animated Counters
+        function initAnimatedCounters() {
+            const counters = document.querySelectorAll('.stat-number[data-target]');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const el = entry.target;
+                        const target = parseInt(el.dataset.target);
+                        animateCounter(el, target);
+                        observer.unobserve(el);
+                    }
+                });
+            }, { threshold: 0.5 });
+            counters.forEach(c => observer.observe(c));
+        }
+        function animateCounter(el, target) {
+            let current = 0;
+            const increment = target / 30;
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) { el.textContent = target; clearInterval(timer); }
+                else { el.textContent = Math.floor(current); }
+            }, 50);
+        }
+
+        // Load Content
+        async function loadContent() { await Promise.all([loadArticles(), loadEvents()]); }
+
+        async function loadArticles() {
+            const container = document.getElementById('featuredArticles');
+            try {
+                const snap = await db.collection('articles').where('status', '==', 'published').orderBy('createdAt', 'desc').limit(6).get();
+                if (!snap.empty) articles = snap.docs.map(d => ({ id: d.id, ...d.data(), createdAt: d.data().createdAt?.toDate() || new Date() }));
+                else articles = getFallbackArticles();
+            } catch (e) { console.warn('Using fallback:', e); articles = getFallbackArticles(); }
+            container.innerHTML = articles.slice(0, 6).map(renderArticleCard).join('');
+            container.querySelectorAll('.card').forEach((c, i) => { c.classList.add('fade-up'); setTimeout(() => c.classList.add('visible'), i * 100); });
+        }
+
+        async function loadEvents() {
+            const container = document.getElementById('upcomingEvents');
+            let events = [];
+            try {
+                const snap = await db.collection('events').where('date', '>=', new Date()).orderBy('date', 'asc').limit(3).get();
+                if (!snap.empty) events = snap.docs.map(d => ({ id: d.id, ...d.data(), date: d.data().date?.toDate() || new Date() }));
+                else events = getFallbackEvents();
+            } catch (e) { events = getFallbackEvents(); }
+            container.innerHTML = events.slice(0, 3).map(renderEventCard).join('');
+            container.querySelectorAll('.card').forEach((c, i) => { c.classList.add('fade-up'); setTimeout(() => c.classList.add('visible'), i * 100); });
+        }
+
+        // Renderers
+        function renderArticleCard(article) {
+            const dateStr = article.createdAt.toLocaleDateString('en', { year: 'numeric', month: 'long', day: 'numeric' });
+            const isRtl = article.language === 'arabic';
+            return `<article class="card ${isRtl ? 'card-rtl' : ''}"><div class="card-accent"></div><div class="card-body"><div class="card-meta"><span class="card-lang ${article.language}">${article.language}</span><span class="card-date">${dateStr}</span></div><h3 class="card-title"><a href="pages/article.html?id=${article.id}">${article.title}</a></h3><p class="card-excerpt">${article.excerpt || ''}</p><div class="card-footer"><a href="pages/article.html?id=${article.id}" class="card-link">Read More <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a></div></div></article>`;
+        }
+        function renderEventCard(event) {
+            const dateStr = event.date.toLocaleDateString('en', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            return `<div class="card"><div class="card-body"><div style="display:flex;align-items:center;gap:.5rem;font-size:.85rem;color:var(--terracotta);font-weight:600;margin-bottom:.5rem"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${dateStr}</div><h3 class="card-title" style="font-size:1.1rem">${event.title}</h3><p class="card-excerpt">${event.description || ''}</p>${event.location ? `<p style="font-size:.85rem;color:var(--text-muted)">📍 ${event.location}</p>` : ''}</div></div>`;
+        }
+
+        // Fallback Data — shown when Firebase is unavailable
+        function getFallbackArticles() {
+            return [
+                {
+                    id: 'fallback-1',
+                    title: 'DMLEK Reaffirms Commitment to Kunama Rights at Regional Summit',
+                    excerpt: 'Representatives of DMLEK participated in the Horn of Africa democratic movements summit, reiterating the call for inclusive governance and the protection of minority nationalities in Eritrea.',
+                    language: 'english',
+                    createdAt: new Date('2025-01-15')
+                },
+                {
+                    id: 'fallback-2',
+                    title: 'The Kunama People: History, Culture and the Struggle for Self-Determination',
+                    excerpt: 'A comprehensive overview of the Kunama nationality — one of the oldest indigenous peoples of the Horn of Africa — and their ongoing struggle for recognition and rights within Eritrea.',
+                    language: 'english',
+                    createdAt: new Date('2024-12-20')
+                },
+                {
+                    id: 'fallback-3',
+                    title: 'ኩናማ ህዝቢ ፍትሒ ይጠልብ — DMLEK ናይ ምክልኻል መደብ የቕርብ',
+                    excerpt: 'ዲሞክራስያዊ ምንቅስቓስ ሓርነት ኩናማ ኤርትራ ንመሰል ፍትሒ ዝምልከት ሰፊሕ መደብ ኣቕሪቡ ኣሎ።',
+                    language: 'tigrinya',
+                    createdAt: new Date('2024-11-10')
+                },
+                {
+                    id: 'fallback-4',
+                    title: 'DMLEK and RSADO Issue Joint Statement on Democratic Transition',
+                    excerpt: 'In a landmark joint communiqué, DMLEK and the Red Sea Afar Democratic Organization called on the international community to support a peaceful democratic transition in Eritrea.',
+                    language: 'english',
+                    createdAt: new Date('2024-10-05')
+                },
+                {
+                    id: 'fallback-5',
+                    title: 'بيان DMLEK حول أوضاع الكوناما في إريتريا',
+                    excerpt: 'أصدرت الحركة الديمقراطية لتحرير كوناما إريتريا بياناً يطالب بضمان الحقوق الأساسية للشعب الكوناما، بما في ذلك الحق في التعليم والتمثيل السياسي.',
+                    language: 'arabic',
+                    createdAt: new Date('2024-09-18')
+                },
+                {
+                    id: 'fallback-6',
+                    title: 'Preserving the Kunama Language: DMLEK Cultural Initiative',
+                    excerpt: 'DMLEK launches a new initiative to document and preserve the Kunama language, partnering with linguists and community elders to create educational resources for the diaspora.',
+                    language: 'english',
+                    createdAt: new Date('2024-08-30')
+                }
+            ];
+        }
+        function getFallbackEvents() {
+            return [
+                {
+                    id: 'fallback-evt-1',
+                    title: 'Kunama Community Solidarity Day',
+                    description: 'Annual gathering of the global Kunama diaspora to celebrate culture, share news from the homeland, and coordinate advocacy efforts.',
+                    location: 'Rome, Italy',
+                    date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days from now
+                },
+                {
+                    id: 'fallback-evt-2',
+                    title: 'DMLEK 30th Anniversary Commemorative Event',
+                    description: 'Join us in marking 30 years of DMLEK\'s founding with a commemorative program featuring speakers, cultural performances, and a discussion on the road ahead.',
+                    location: 'Online (Zoom)',
+                    date: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000) // 60 days from now
+                },
+                {
+                    id: 'fallback-evt-3',
+                    title: 'Horn of Africa Human Rights Symposium',
+                    description: 'DMLEK participates in this international symposium addressing the human rights situation for minority nationalities across the Horn of Africa.',
+                    location: 'Geneva, Switzerland',
+                    date: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000) // 90 days from now
+                }
+            ];
+        }
+
+        // Utilities
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.className = 'toast ' + type;
+            document.getElementById('toastMessage').textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        document.getElementById('newsletterForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const emailInput = this.querySelector('input[type="email"]');
+            const btn = this.querySelector('button[type="submit"]');
+            const email = emailInput.value.trim().toLowerCase();
+            if (!email) return;
+            btn.disabled = true;
+            btn.textContent = 'Subscribing...';
+            try {
+                // Check for duplicate before saving
+                const existing = await db.collection('subscribers').where('email', '==', email).limit(1).get();
+                if (!existing.empty) {
+                    showToast("You're already subscribed — thank you!", 'success');
+                } else {
+                    await db.collection('subscribers').add({
+                        email: email,
+                        subscribedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        source: 'homepage'
+                    });
+                    showToast('Thank you for subscribing!', 'success');
+                }
+                this.reset();
+            } catch (err) {
+                console.error('Subscribe error:', err);
+                showToast('Something went wrong. Please try again.', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Subscribe';
+            }
+        });
+    </script>
+</body>
+</html>
